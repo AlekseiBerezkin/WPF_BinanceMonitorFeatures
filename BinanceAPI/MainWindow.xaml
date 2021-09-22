@@ -13,9 +13,9 @@
             <ColumnDefinition Width="557*"/>
             <ColumnDefinition Width="350*"/>
         </Grid.ColumnDefinitions>
-        <Button Content="Старт" HorizontalAlignment="Left" Margin="291,333,0,0" VerticalAlignment="Top" Click="Button_Click"/>
+        <Button x:Name="Start" Content="Старт" HorizontalAlignment="Left" Margin="291,333,0,0" VerticalAlignment="Top" Click="Button_Click"/>
         <Button x:Name="Add" Content="Добавить" HorizontalAlignment="Left" Margin="10,333,0,0" VerticalAlignment="Top" Click="Add_Click"/>
-        <Button Content="Стоп" HorizontalAlignment="Left" Margin="368,333,0,0" VerticalAlignment="Top" Click="Button_Click_1"/>
+        <Button x:Name="Stop" Content="Стоп" HorizontalAlignment="Left" Margin="368,333,0,0" VerticalAlignment="Top" Click="Button_Click_1"/>
         
         <ComboBox x:Name="cbPair" HorizontalAlignment="Left" Margin="101,333,0,0" VerticalAlignment="Top" Width="120"/>
         <Label Content="Label" HorizontalAlignment="Left" Margin="413,233,0,0" VerticalAlignment="Top" Grid.Column="1"/>

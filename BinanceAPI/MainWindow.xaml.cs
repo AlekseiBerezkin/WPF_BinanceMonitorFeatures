@@ -44,28 +44,30 @@ namespace BinanceAPI
             TimerPeriod = int.Parse(ttime.Text);
             timer = new Timer(tm, 0, 0, TimerPeriod);
 
-                /*List<DataBinance> dataBin = b.getDataBinance();
-                //var list = stringCollection.Cast<string>().ToList();
-                StringCollection curSettings = Properties.Settings.Default.ListCur;
-                List<string> cur= curSettings.Cast<string>().ToList();
-                List<DataBinance> source = new List<DataBinance>();
-                foreach(string s in cur)
+            /*List<DataBinance> dataBin = b.getDataBinance();
+            //var list = stringCollection.Cast<string>().ToList();
+            StringCollection curSettings = Properties.Settings.Default.ListCur;
+            List<string> cur= curSettings.Cast<string>().ToList();
+            List<DataBinance> source = new List<DataBinance>();
+            foreach(string s in cur)
+            {
+                foreach(DataBinance db in dataBin)
                 {
-                    foreach(DataBinance db in dataBin)
+                    if(db.symbol.Contains(s))
                     {
-                        if(db.symbol.Contains(s))
-                        {
-                            source.Add(db);
-                        }
+                        source.Add(db);
                     }
                 }
-                Table.ItemsSource = source;*/
-
             }
+            Table.ItemsSource = source;*/
+            Start.IsEnabled = false;
+            Stop.IsEnabled = true;
+        }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-
+            Start.IsEnabled = true;
+            Stop.IsEnabled = false;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -76,7 +78,7 @@ namespace BinanceAPI
             {
                 cbPair.Items.Add(s);
             }
-            
+            Stop.IsEnabled = false;
         }
 
         private void Add_Click(object sender, RoutedEventArgs e)
