@@ -27,23 +27,51 @@ namespace BinanceAPI
     /// </summary>
     public partial class MainWindow : Window
     {
-        ObservableCollection<DataBinance> dataForTable = new ObservableCollection<DataBinance>();
+        private SolidColorBrush more = new SolidColorBrush(Colors.Green);
+        private SolidColorBrush smaller = new SolidColorBrush(Colors.Red);
+        ObservableCollection<DataBinanceView> dataForTable = new ObservableCollection<DataBinanceView>();
         List<string> userData = FileProvider.ReadFile();
         bool flagStart = false;
         Timer timer;
-       
+        List<DataBinance> baseDataBinance = new List<DataBinance>();
+
+
 
         public MainWindow()
         {
             InitializeComponent();
             
         }
+        private void updateBaseDataBinance()
+        {
+            baseDataBinance.Clear();
+            List<DataBinance> updateData=new List<DataBinance>(); 
+            try
+            {
+                updateData = Binance.getDataBinance();
+            }
+            catch(Exception ex)
+            {
+                list.Items.Add($"ОШИБКА:{ex}");
+                return;
+            }
 
+            foreach(DataBinanceView udb in dataForTable)
+            {
+                updateData.ForEach(f => { 
+                    if (f.symbol==udb.symbol) 
+                    {
+                        baseDataBinance.Add(new DataBinance { symbol = udb.symbol, lastPrice = f.lastPrice });
+                    } });
+            }
+        }
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            renderTable();
+            updateBaseDataBinance();
 
-            updatecbdelete();
+            //renderTable();
+
+            
             TimerCallback tm = new TimerCallback(updateData);
             //TimerPeriod = int.Parse(ttime.Text)*1000;
             timer = new Timer(tm, 0, 0, getTimePeriod());
@@ -51,12 +79,17 @@ namespace BinanceAPI
 
             Start.IsEnabled = false;
             Stop.IsEnabled = true;
+            btnChangePeriod.IsEnabled = true;
+            Add.IsEnabled = false;
+            btndelete.IsEnabled = false;
+
+            list.Items.Add(DateTime.Now.ToString("HH:mm")+ $" Старт с таймером {ttime.Text}с"); 
         }
 
         private void updatecbdelete()
         {
             cbdelete.Items.Clear();
-            foreach (DataBinance s in dataForTable)
+            foreach (DataBinanceView s in dataForTable)
             {
                 
                 cbdelete.Items.Add(s.symbol);
@@ -67,10 +100,14 @@ namespace BinanceAPI
         {
 
             timer.Change(Timeout.Infinite, Timeout.Infinite);
-            dataForTable.Clear();
+            //dataForTable.Clear();
             userData = FileProvider.ReadFile();
             Start.IsEnabled = true;
             Stop.IsEnabled = false;
+            btnChangePeriod.IsEnabled = false;
+            Add.IsEnabled = true;
+            btndelete.IsEnabled = true;
+            list.Items.Add(DateTime.Now.ToString("HH:mm") + $" Остановка обновления");
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -82,7 +119,16 @@ namespace BinanceAPI
             {
                 cbPair.Items.Add(s);
             }
+
+            foreach(string s in userData)
+            {
+                dataForTable.Add(new DataBinanceView { symbol = s, percent = 0 }) ;
+            }
+        
+            Table.ItemsSource = dataForTable;
+            updatecbdelete();
             Stop.IsEnabled = false;
+            btnChangePeriod.IsEnabled = false;
             //dataForTable.CollectionChanged+= Users_CollectionChanged;
         }
 
@@ -116,7 +162,9 @@ namespace BinanceAPI
                 if (res == -1)
                 { MessageBox.Show("Валюта уже добавлена"); return; }
                 
-                dataForTable.Add(new DataBinance { symbol = NameCur, priceChangePercent = 0 });
+                dataForTable.Add(new DataBinanceView { symbol = NameCur, percent = 0 });
+                updatecbdelete();
+                list.Items.Add(DateTime.Now.ToString("HH:mm") + $" Пара {NameCur} добавлена в таблицу");
             }
             else
             {
@@ -135,70 +183,34 @@ namespace BinanceAPI
                 {
                     if(dataForTable[i].symbol.Contains(db.symbol))
                     {
-                        Dispatcher.Invoke(() => dataForTable[i]=db);
-                    }
-                }
-            }
-            
-            /*Dispatcher.Invoke(() => dataForTable.Clear());
-            foreach (DataBinance db in GetUpdateUserData())
-            {
-                Dispatcher.Invoke(() => dataForTable.Add(db));
-            }*/
-
-            //renderTable();
-            //dataForTable = GetUpdateUserData();
-            //Dispatcher.Invoke(() => Table.Items.Refresh());
-        }
-
-        private List<DataBinance> UpdateUserData()
-        {
-
-            List<DataBinance> LDB = Binance.getDataBinance();
-            List<DataBinance> viewData = new List<DataBinance>();
-            foreach (string s in userData)
-            {
-                foreach (DataBinance db in LDB)
-                {
-                    if (db.symbol.Contains(s))
-                    {
-                        viewData.Add(db);
+                        Dispatcher.Invoke(() => dataForTable[i]=new DataBinanceView {symbol=db.symbol,
+                            percent=Math.Round((db.lastPrice - baseDataBinance[i].lastPrice) *100/ baseDataBinance[i].lastPrice,3),
+                            StartPrice= baseDataBinance[i].lastPrice
+                        } );
                         break;
                     }
                 }
             }
-            return viewData;
+            
         }
 
-        private void renderTable()
+
+        private void NumericOnly(System.Object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
-            // dataForTable = GetUpdateUserData();
-            List<DataBinance> updateData = Binance.getDataBinance();
-            if (userData != null)
-            {
-                foreach(string s in userData)
-                {
-                    foreach(DataBinance db in updateData)
-                    {
-                        if(db.symbol.Contains(s))
-                        {
-                            dataForTable.Add(db);
-                            break;
-                        }
-                    }
-                }
-                Table.ItemsSource = dataForTable;
-            }
-            else
-            {
-                MessageBox.Show("Добавьте пару");
-            }
+            e.Handled = IsTextNumeric(e.Text);
 
         }
+        private static bool IsTextNumeric(string str)
+        {
+            System.Text.RegularExpressions.Regex reg = new System.Text.RegularExpressions.Regex("[^0-9]");
+            return reg.IsMatch(str);
 
+        }
         private void btnChangePeriod_Click(object sender, RoutedEventArgs e)
         {
+            int timeUpdate = getTimePeriod();
             timer.Change(0, getTimePeriod());
+            list.Items.Add($"Время таймера изменено на {timeUpdate/1000}c");
         }
 
         private int getTimePeriod()
@@ -224,7 +236,22 @@ namespace BinanceAPI
                     dataForTable.RemoveAt(i);
                 }
             }
+            list.Items.Add(DateTime.Now.ToString("HH:mm") + $" Пара {NameDel} удалена из таблицы");
             updatecbdelete();
+        }
+
+        private void Table_LoadingRow(object sender, DataGridRowEventArgs e)
+        {
+            /*if(flagStart==true)
+            {
+                DataBinanceView s = (DataBinanceView)e.Row.DataContext;
+
+                 if (s.percent> 0)
+                     e.Row.Background = more;
+                 else
+                     e.Row.Background = smaller;
+            }*/
+
         }
     }
 }
