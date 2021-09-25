@@ -8,20 +8,22 @@ using System.Text;
 
 namespace BinanceAPI.Provider
 {
-    class Binance
+    static class  Binance
     {
-        public List<DataBinance> getDataBinance()
+        public static List<DataBinance> getDataBinance()
         {
+            RequestDataBinance();
             return DB;
         }
 
-        public Binance()
+        /*public  Binance()
         {
             RequestDataBinance();
-        }
-        List<DataBinance> DB = new List<DataBinance>();
-        private void RequestDataBinance()
+        }*/
+        static List<DataBinance> DB = new List<DataBinance>();
+        private static void RequestDataBinance()
         {
+            DB.Clear();
             string request = $"https://www.binance.com/fapi/v1/ticker/24hr";
 
             HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(request);
@@ -45,12 +47,15 @@ namespace BinanceAPI.Provider
             }
         }
 
-        public List<string> CurName()
+        
+
+        public static List<string> CurName()
         {
+            RequestDataBinance();
             List<string> ListName=new List<string>();
             foreach(DataBinance db in DB)
             {
-                ListName.Add(db.symbol.Replace("USDT",""));
+                ListName.Add(db.symbol);
             }
             return ListName;
         }

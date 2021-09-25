@@ -1,36 +1,60 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace BinanceAPI.Provider
 {
-    class FileProvider
+    static class  FileProvider
     {
-        public List<string> ReadFile()
+        static public List<string> ReadFile()
         {
-            List<string> data = new List<string>();
-            using (StreamReader reader = new StreamReader("pairs.txt"))
+            try
             {
-                string line;
-                while ((line = reader.ReadLine()) != null)
+                List<string> data = new List<string>();
+                using (StreamReader reader = new StreamReader("pairs.txt"))
                 {
-                    data.Add(line);
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        data.Add(line);
+                    }
+
                 }
-                    
+                return data;
             }
-            return data;
+            catch(Exception ex)
+            {
+                return null;
+            }
+
         }
 
-        public void WriteFile(List<string> data)
+        static public int WriteFile(string data)
         {
-            StringBuilder dataForWrite = new StringBuilder();
 
-            foreach(string str in data)
+            List<string> listReadData = ReadFile();
+
+            if (listReadData.Contains(data))
+                return -1;
+
+                File.AppendAllText(@"pairs.txt", data.ToString() + "\n");
+            return 1;
+        }
+
+        static public void deleteFromFile(string data)
+        {
+
+            var Lines = File.ReadAllLines(@"pairs.txt");
+            if (Lines.Contains(data))
             {
-                dataForWrite.Append(str+"\n");
+                var newLines = Lines.Where(line => !line.Contains(data));
+                File.WriteAllLines(@"pairs.txt", newLines);
+                
             }
-            File.WriteAllText(@"pairs.txt", dataForWrite.ToString());
+            //File.WriteAllText(@"pairs.txt", sbdata.ToString());
+            
         }
     }
 }

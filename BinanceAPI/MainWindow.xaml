@@ -7,22 +7,31 @@
         xmlns:local="clr-namespace:BinanceAPI"
         xmlns:dxe="http://schemas.devexpress.com/winfx/2008/xaml/editors" x:Class="BinanceAPI.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" Loaded="Window_Loaded">
-    <Grid Margin="0,0,-107,-76" >
+        Title="MainWindow" Height="342" Width="783" Loaded="Window_Loaded">
+    <Grid HorizontalAlignment="Center" Width="769" Height="450" VerticalAlignment="Top" >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="557*"/>
             <ColumnDefinition Width="350*"/>
         </Grid.ColumnDefinitions>
-        <Button x:Name="Start" Content="Старт" HorizontalAlignment="Left" Margin="291,333,0,0" VerticalAlignment="Top" Click="Button_Click"/>
-        <Button x:Name="Add" Content="Добавить" HorizontalAlignment="Left" Margin="10,333,0,0" VerticalAlignment="Top" Click="Add_Click"/>
-        <Button x:Name="Stop" Content="Стоп" HorizontalAlignment="Left" Margin="368,333,0,0" VerticalAlignment="Top" Click="Button_Click_1"/>
-        
-        <ComboBox x:Name="cbPair" HorizontalAlignment="Left" Margin="101,333,0,0" VerticalAlignment="Top" Width="120"/>
-        <Label Content="Label" HorizontalAlignment="Left" Margin="413,233,0,0" VerticalAlignment="Top" Grid.Column="1"/>
-        <Label Content="Таймер обновления" HorizontalAlignment="Left" Margin="479,333,0,0" VerticalAlignment="Top" IsEnabled="False" Foreground="#FF120000" Grid.ColumnSpan="2"/>
+        <Button x:Name="Start" Content="Старт" HorizontalAlignment="Left" Margin="301,88,0,0" VerticalAlignment="Top" Click="Button_Click"/>
+        <Button x:Name="Add" Content="Добавить" HorizontalAlignment="Left" Margin="227,10,0,0" VerticalAlignment="Top" Click="Add_Click"/>
+        <Button x:Name="Stop" Content="Стоп" HorizontalAlignment="Left" Margin="378,88,0,0" VerticalAlignment="Top" Click="Button_Click_1"/>
 
-        <dxe:TextEdit x:Name="ttime" HorizontalAlignment="Left" Margin="38,333,0,0" VerticalAlignment="Top" Width="35" Grid.Column="1" EditValue="10"/>
-        <DataGrid x:Name="Table" Margin="10,10,277,198" Grid.ColumnSpan="2"/>
+        <ComboBox x:Name="cbPair" HorizontalAlignment="Left" Margin="318,10,0,0" VerticalAlignment="Top" Width="120"/>
+        <Label Content="Label" HorizontalAlignment="Left" Margin="413,233,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+        <Label Content="Таймер обновления" HorizontalAlignment="Left" Margin="217,140,0,0" VerticalAlignment="Top" IsEnabled="False" Foreground="#FF120000"/>
+
+        <dxe:TextEdit x:Name="ttime" HorizontalAlignment="Left" Margin="338,140,0,0" VerticalAlignment="Top" Width="35" EditValue="10"/>
+        <DataGrid x:Name="Table" ItemsSource="{Binding }"  AutoGenerateColumns="False" Margin="10,10,0,136" HorizontalAlignment="Left" Width="212">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Имя" Binding="{Binding symbol}"/>
+                <DataGridTextColumn Header="%" Binding="{Binding priceChangePercent}"/>
+
+            </DataGrid.Columns>
+        </DataGrid>
+        <Button x:Name="btnChangePeriod" Content="Изменить" HorizontalAlignment="Left" Margin="378,140,0,0" VerticalAlignment="Top" Click="btnChangePeriod_Click"/>
+        <Button x:Name="btndelete" Content="Удалить" HorizontalAlignment="Left" Margin="227,37,0,0" VerticalAlignment="Top" Click="btndelete_Click"/>
+        <ComboBox x:Name="cbdelete" HorizontalAlignment="Left" Margin="318,37,0,0" VerticalAlignment="Top" Width="120"/>
 
     </Grid>
 </Window>
