@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -22,6 +23,20 @@ using System.Windows.Shapes;
 
 namespace BinanceAPI
 {
+    class percentToColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            // Все проверки для краткости выкинул
+            return (double)value > 0 ?
+                new SolidColorBrush(Colors.Green)
+                : new SolidColorBrush(Colors.Red);
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new Exception("The method or operation is not implemented.");
+        }
+    }
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -242,16 +257,24 @@ namespace BinanceAPI
 
         private void Table_LoadingRow(object sender, DataGridRowEventArgs e)
         {
-            /*if(flagStart==true)
+            /*try
             {
-                DataBinanceView s = (DataBinanceView)e.Row.DataContext;
+                var s = (DataBinanceView)e.Row.DataContext;
 
-                 if (s.percent> 0)
-                     e.Row.Background = more;
-                 else
-                     e.Row.Background = smaller;
+                var f=e.Row.ItemsPanel;
+
+                if (s.percent > 0)
+                    e.Row = more;
+                if (s.percent < 0)
+                    e.Row.Background = smaller;
+            }
+            catch(Exception ex)
+            {
+
             }*/
-
         }
     }
+
+
 }
+
