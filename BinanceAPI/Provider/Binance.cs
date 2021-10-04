@@ -8,8 +8,9 @@ using System.Text;
 
 namespace BinanceAPI.Provider
 {
-    static class  Binance
+    static class Binance
     {
+        static string baseLinkBinance = "https://www.binance.com/ru/trade/";
         public static List<DataBinance> getDataBinance()
         {
             RequestDataBinance();
@@ -47,7 +48,11 @@ namespace BinanceAPI.Provider
             }
         }
 
-        
+        public static string getLink(string name)
+            {
+            string currency = name.Replace("USDT", "");
+            return baseLinkBinance + currency + "_USDT";
+            }
 
         public static List<string> CurName()
         {

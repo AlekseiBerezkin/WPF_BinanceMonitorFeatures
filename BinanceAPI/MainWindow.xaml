@@ -9,7 +9,7 @@
         mc:Ignorable="d"
         Title="Specially for НЕОХ.ЕВАЙ!!!" Height="659" Width="764" Loaded="Window_Loaded">
     <Window.Resources>
-        
+
         <local:percentToColorConverter x:Key="percentToColorConverter" />
 
         <Style x:Key="IdStyle" TargetType="{x:Type DataGridCell}">
@@ -17,7 +17,7 @@
             <Setter Property="BorderBrush"  Value="White" />
         </Style>
     </Window.Resources>
-    
+
     <Grid Margin="-7,10,10,10" >
         <Grid.RowDefinitions>
             <RowDefinition Height="0*"/>
@@ -44,15 +44,25 @@
                 <DataGridTextColumn Header="Имя" Binding="{Binding symbol}"/>
                 <DataGridTextColumn  Header="%" Binding="{Binding percent}" CellStyle="{StaticResource IdStyle}" Foreground="White"/>
                 <DataGridTextColumn Header="На старте" Binding="{Binding StartPrice}"/>
-                <DataGridTextColumn Header="Ссылка" Binding="{Binding link}"/>
+                <DataGridHyperlinkColumn  Header="Ссылка" Binding="{Binding link}">
+                    <DataGridHyperlinkColumn.ElementStyle>
+                        <Style>
+                            <EventSetter Event="Hyperlink.Click" Handler="DG_Hyperlink_Click"/>
+                        </Style>
+                    </DataGridHyperlinkColumn.ElementStyle>
+                </DataGridHyperlinkColumn>
 
             </DataGrid.Columns>
         </DataGrid>
         <Button x:Name="btnChangePeriod" Content="Изменить" Margin="0,112,10,0" VerticalAlignment="Top" Click="btnChangePeriod_Click" Height="22" Grid.Row="1" HorizontalAlignment="Right" Width="82"/>
         <Button x:Name="btndelete" Content="Удалить" Margin="0,36,155,0" VerticalAlignment="Top" Click="btndelete_Click" Height="22" Grid.Row="1" HorizontalAlignment="Right" Width="78"/>
         <ComboBox x:Name="cbdelete" Margin="0,36,6,0" VerticalAlignment="Top" Height="22" Grid.Row="1" HorizontalAlignment="Right" Width="120"/>
-        <ListBox x:Name="list" Margin="0,149,11,19" HorizontalAlignment="Right" Width="231" Grid.Row="1"/>
+        <ListBox x:Name="list" Margin="0,194,11,19" HorizontalAlignment="Right" Width="231" Grid.Row="1"/>
+        <Label x:Name="cbReload" Content="Таймер перезагрузки" Margin="0,145,99,0" VerticalAlignment="Top" IsEnabled="False" Foreground="#FF120000" Height="22" Grid.Row="1" HorizontalAlignment="Right" Width="120"/>
+        <dxe:TextEdit x:Name="ttime_restart"  PreviewTextInput="NumericOnly" Margin="0,145,66,0" VerticalAlignment="Top" EditValue="2" Height="22" Grid.Row="1" HorizontalAlignment="Right" Width="28" IsEnabled="False"/>
+        <CheckBox x:Name="cbReloadData" Content="" HorizontalAlignment="Right" Margin="0,145,219,0" Grid.RowSpan="2" VerticalAlignment="Top"/>
+        <Label x:Name="lbReloadTime" Content="1" Margin="0,145,10,0" VerticalAlignment="Top" IsEnabled="False" Foreground="#FF120000" Height="22" Grid.Row="1" HorizontalAlignment="Right" Width="50"/>
 
     </Grid>
-    
+
 </Window>
