@@ -1,5 +1,8 @@
-﻿using BinanceAPI.Model;
+﻿using Binance.Net;
+using Binance.Net.Objects;
+using BinanceAPI.Model;
 using BinanceAPI.Provider;
+using CryptoExchange.Net.Authentication;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -68,7 +71,7 @@ namespace BinanceAPI
             List<DataBinance> updateData=new List<DataBinance>(); 
             try
             {
-                updateData = Binance.getDataBinance();
+                updateData = BinanceProvider.getDataBinance();
             }
             catch(Exception ex)
             {
@@ -155,7 +158,7 @@ namespace BinanceAPI
 
             printTime();
             
-            List<string> ListName = Binance.CurName();
+            List<string> ListName = BinanceProvider.CurName();
             foreach(string s in ListName)
             {
                 cbPair.Items.Add(s);
@@ -172,6 +175,7 @@ namespace BinanceAPI
             btnChangePeriod.IsEnabled = false;
             ttime_restart.IsEnabled = true;
             //dataForTable.CollectionChanged+= Users_CollectionChanged;
+           // test();
         }
 
         private void Add_Click(object sender, RoutedEventArgs e)
@@ -194,9 +198,102 @@ namespace BinanceAPI
                 MessageBox.Show("Выберите валюту");
             }
         }
-        
 
-            private void updateData_reload()
+
+        public async Task test()
+        {
+            BinanceClient.SetDefaultOptions(new BinanceClientOptions()
+            {
+                ApiCredentials = new ApiCredentials("t10vBOdhYWFBKzSRJlBy6c9gXex7KmuFW8N3N8a1ex8RLGcsB1rymoUzVlG1k2bE", "5skKphsqutGePJtu05VqBTRN8aHtBEddjBrbRqz3d42IQeYGzUhADvlasGkFvpws"),
+                //LogLevel = LogLevel.Debug,
+                //LogWriters = new List<ILogger> { new ConsoleLogger() }
+            });
+            BinanceSocketClient.SetDefaultOptions(new BinanceSocketClientOptions()
+            {
+                ApiCredentials = new ApiCredentials("t10vBOdhYWFBKzSRJlBy6c9gXex7KmuFW8N3N8a1ex8RLGcsB1rymoUzVlG1k2bE", "5skKphsqutGePJtu05VqBTRN8aHtBEddjBrbRqz3d42IQeYGzUhADvlasGkFvpws"),
+                //LogLevel = LogLevel.Debug,
+                //LogWriters = new List<ILogger> { new ConsoleLogger() }
+            });
+
+            using (var client = new BinanceClient())
+            {
+                /* // Spot.Market | Spot market info endpoints
+                 client.Spot.Market.GetBookPriceAsync("BTCUSDT");
+                 // Spot.Order | Spot order info endpoints
+                 client.Spot.Order.GetOrdersAsync("BTCUSDT");
+                 // Spot.System | Spot system endpoints
+                 client.Spot.System.GetExchangeInfoAsync();
+                 // Spot.UserStream | Spot user stream endpoints. Should be used to subscribe to a user stream with the socket client
+                 client.Spot.UserStream.StartUserStreamAsync();
+                 // Spot.Futures | Transfer to/from spot from/to the futures account + cross-collateral endpoints
+                 client.Spot.Futures.TransferFuturesAccountAsync("ASSET", 1, FuturesTransferType.FromSpotToUsdtFutures);
+
+                 // FuturesCoin | Coin-M general endpoints
+                 client.FuturesCoin.GetPositionInformationAsync();
+                 // FuturesCoin.Market | Coin-M futures market endpoints
+                 client.FuturesCoin.Market.GetBookPricesAsync("BTCUSD");
+                 // FuturesCoin.Order | Coin-M futures order endpoints
+                 client.FuturesCoin.Order.GetUserTradesAsync();
+                 // FuturesCoin.Account | Coin-M account info
+                 client.FuturesCoin.Account.GetAccountInfoAsync();
+                 // FuturesCoin.System | Coin-M system endpoints
+                 client.FuturesCoin.System.GetExchangeInfoAsync();
+                 // FuturesCoin.UserStream | Coin-M user stream endpoints. Should be used to subscribe to a user stream with the socket client
+                 client.FuturesCoin.UserStream.StartUserStreamAsync();*/
+
+                // FuturesUsdt | USDT-M general endpoints
+                //client.FuturesUsdt.GetPositionInformationAsync();
+                // FuturesUsdt.Market | USDT-M futures market endpoints
+                //client.FuturesUsdt.Market.GetBookPricesAsync("BTCUSDT");
+                // FuturesUsdt.Order | USDT-M futures order endpoints
+                //client.FuturesUsdt.Order.GetUserTradesAsync("BTCUSDT");
+                // FuturesUsdt.Account | USDT-M account info
+                //client.FuturesUsdt.Account.GetAccountInfoAsync();
+                // FuturesUsdt.System | USDT-M system endpoints
+                //client.FuturesUsdt.System.GetExchangeInfoAsync();
+                // FuturesUsdt.UserStream | USDT-M user stream endpoints. Should be used to subscribe to a user stream with the socket client
+                await client.FuturesUsdt.UserStream.StartUserStreamAsync();
+
+                /*// General | General/account endpoints
+                client.General.GetAccountInfoAsync();
+
+                // Lending | Lending endpoints
+                client.Lending.GetFlexibleProductListAsync();
+
+                // Margin | Margin general/account info
+                client.Margin.GetMarginAccountInfoAsync();
+                // Margin.Market | Margin market endpoints
+                client.Margin.Market.GetMarginPairsAsync();
+                // Margin.Order | Margin order endpoints
+                client.Margin.Order.GetMarginAccountOrdersAsync("BTCUSDT");
+                // Margin.UserStream | Margin user stream endpoints. Should be used to subscribe to a user stream with the socket client
+                client.Margin.UserStream.StartUserStreamAsync();
+                // Margin.IsolatedUserStream | Isolated margin user stream endpoints. Should be used to subscribe to a user stream with the socket client
+                client.Margin.IsolatedUserStream.StartIsolatedMarginUserStreamAsync("BTCUSDT");
+
+                // Mining | Mining endpoints
+                client.Mining.GetMiningCoinListAsync();
+
+                // SubAccount | Sub account management
+                client.SubAccount.TransferSubAccountAsync("fromEmail", "toEmail", "asset", 1);
+
+                // Brokerage | Brokerage management
+                client.Brokerage.CreateSubAccountAsync();
+
+                // WithdrawDeposit | Withdraw and deposit endpoints
+                client.WithdrawDeposit.GetWithdrawalHistoryAsync();*/
+            }
+            var socketClient = new BinanceSocketClient();
+            await socketClient.FuturesUsdt.SubscribeToAllBookTickerUpdatesAsync(data =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    list.Items.Add(data.Data.Symbol);
+                });
+            });
+
+        }
+        private void updateData_reload()
         {
 
             Dispatcher.Invoke(() => {
@@ -224,7 +321,7 @@ namespace BinanceAPI
 
         private async Task updateDataAsync()
         {
-            List<DataBinance> UD = Binance.getDataBinance();
+            List<DataBinance> UD = BinanceProvider.getDataBinance();
 
 
             for (int i = 0; i < dataForTable.Count; i++)
@@ -238,7 +335,7 @@ namespace BinanceAPI
                                 symbol = db.symbol,
                                 percent = Math.Round((db.lastPrice - baseDataBinance[i].lastPrice) * 100 / baseDataBinance[i].lastPrice, 3),
                                 StartPrice = baseDataBinance[i].lastPrice,
-                                link = Binance.getLink(db.symbol)
+                                link = BinanceProvider.getLink(db.symbol)
                             });
                         
 
@@ -339,6 +436,11 @@ namespace BinanceAPI
         private void Table_LoadingRow(object sender, DataGridRowEventArgs e)
         {
 
+        }
+
+        private void Settings_Click(object sender, RoutedEventArgs e)
+        {
+            new Settings().ShowDialog();
         }
     }
 

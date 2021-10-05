@@ -1,16 +1,26 @@
-﻿using BinanceAPI.Model;
+﻿using Binance.Net;
+using Binance.Net.Objects;
+using BinanceAPI.Model;
+using CryptoExchange.Net.Authentication;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Controls;
+using System.Windows.Threading;
 
 namespace BinanceAPI.Provider
 {
-    static class Binance
+     class BinanceProvider
     {
+        
+        
+
         static string baseLinkBinance = "https://www.binance.com/ru/trade/";
+
         public static List<DataBinance> getDataBinance()
         {
             RequestDataBinance();
