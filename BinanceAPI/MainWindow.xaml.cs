@@ -33,7 +33,7 @@ namespace BinanceAPI
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             // Все проверки для краткости выкинул
-            return (double)value > 0 ?
+            return (decimal)value > 0 ?
                 new SolidColorBrush(Colors.Green)
                 : new SolidColorBrush(Colors.Red);
         }
@@ -51,13 +51,11 @@ namespace BinanceAPI
         private SolidColorBrush smaller = new SolidColorBrush(Colors.Red);
         ObservableCollection<DataBinanceView> dataForTable = new ObservableCollection<DataBinanceView>();
         List<string> userData = FileProvider.ReadFile();
-        bool flagStart = false;
-        bool flagReload = false;
         Timer timer;
         //Timer timerReload;
         int indexReload = 0;
         List<DataBinance> baseDataBinance = new List<DataBinance>();
-
+        BinanceSocketClient socketClient = new BinanceSocketClient();
 
 
         public MainWindow()
@@ -81,47 +79,58 @@ namespace BinanceAPI
 
             foreach(DataBinanceView udb in dataForTable)
             {
-                updateData.ForEach(f => { 
+                /*symbol = updateSymbol.Symbol,
+                                percent = Math.Round((updateSymbol.LastPrice - baseDataBinance[i].lastPrice) / baseDataBinance[i].lastPrice, 3),
+                                link = BinanceProvider.getLink(updateSymbol.Symbol),
+                                StartPrice = baseDataBinance[i].lastPrice*/
+                var updateSymbol = updateData.FirstOrDefault(p => p.symbol == udb.symbol);
+                if(updateSymbol!=null)
+                {
+                    udb.link = BinanceProvider.getLink(updateSymbol.symbol);
+                    udb.StartPrice = updateSymbol.lastPrice;
+                }
+                
+                /*updateData.ForEach(f => { 
                     if (f.symbol==udb.symbol) 
                     {
                         baseDataBinance.Add(new DataBinance { symbol = udb.symbol, lastPrice = f.lastPrice });
-                    } });
+                    } });*/
             }
         }
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private async void Button_Click(object sender, RoutedEventArgs e)
         {
             updateBaseDataBinance();
 
             //renderTable();
-
+            await StartDataStream();
             
-            TimerCallback tm = new TimerCallback(updateData);
-            //TimerCallback tm_reload = new TimerCallback(updateData_reload);
-            //TimerPeriod = int.Parse(ttime.Text)*1000;
-            timer = new Timer(tm, 0, 0, getTimePeriod());
             string treload ;
             if(cbReloadData.IsChecked.Value)
             {
                 indexReload = getTimeReloadPeriod();
                 //timerReload = new Timer(tm_reload, 0, timeReload, timeReload);
-                 treload = "С перезагрузкой";
-                flagReload = true;
+                 treload = " c перезагрузкой";
+                int TimerPeriod;
+                TimerCallback tm = new TimerCallback(updateData);
+                //TimerCallback tm_reload = new TimerCallback(updateData_reload);
+                TimerPeriod = int.Parse(ttime_restart.Text) * 60000;
+                timer = new Timer(tm, 0, 0, TimerPeriod);
             }
             else
             {
-                flagReload = false;
-                treload = "Без перезагрузки";
+                //flagReload = false;
+                treload = " без перезагрузки";
             }
 
             cbReloadData.IsEnabled = false;
             Start.IsEnabled = false;
             Stop.IsEnabled = true;
-            btnChangePeriod.IsEnabled = true;
+            //btnChangePeriod.IsEnabled = true;
             Add.IsEnabled = false;
             btndelete.IsEnabled = false;
             ttime_restart.IsEnabled = false;
 
-            list.Items.Add(DateTime.Now.ToString("HH:mm")+ $" Старт с таймером {ttime.Text}."+ treload); 
+            list.Items.Add(DateTime.Now.ToString("HH:mm")+ $" Старт" + treload); 
         }
 
         private void updatecbdelete()
@@ -137,14 +146,15 @@ namespace BinanceAPI
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
 
-            timer.Change(Timeout.Infinite, Timeout.Infinite);
-           // if(timerReload!=null)
-                //timerReload.Change(Timeout.Infinite, Timeout.Infinite);
+            //timer.Change(Timeout.Infinite, Timeout.Infinite);
+            // if(timerReload!=null)
+            //timerReload.Change(Timeout.Infinite, Timeout.Infinite);
+            socketClient.UnsubscribeAllAsync();
             userData = FileProvider.ReadFile();
 
             Start.IsEnabled = true;
             Stop.IsEnabled = false;
-            btnChangePeriod.IsEnabled = false;
+            //btnChangePeriod.IsEnabled = false;
             Add.IsEnabled = true;
             btndelete.IsEnabled = true;
             cbReloadData.IsEnabled = true;
@@ -156,7 +166,7 @@ namespace BinanceAPI
         {
             updateBaseDataBinance();
 
-            printTime();
+            //printTime();
             
             List<string> ListName = BinanceProvider.CurName();
             foreach(string s in ListName)
@@ -168,17 +178,23 @@ namespace BinanceAPI
             {
                 dataForTable.Add(new DataBinanceView { symbol = s, percent = 0 }) ;
             }
-        
+           
             Table.ItemsSource = dataForTable;
             updatecbdelete();
             Stop.IsEnabled = false;
-            btnChangePeriod.IsEnabled = false;
+            //btnChangePeriod.IsEnabled = false;
             ttime_restart.IsEnabled = true;
             //dataForTable.CollectionChanged+= Users_CollectionChanged;
            // test();
+
+            if(Properties.Settings.Default.API=="" || Properties.Settings.Default.Secret == "")
+            {
+                MessageBox.Show("API ключ или SecretKey отсутствует");
+            }
         }
 
-        private void Add_Click(object sender, RoutedEventArgs e)
+    
+    private void Add_Click(object sender, RoutedEventArgs e)
         {
             string NameCur = cbPair.Text;
             if(NameCur.Any())
@@ -200,177 +216,66 @@ namespace BinanceAPI
         }
 
 
-        public async Task test()
+        public async Task StartDataStream()
         {
             BinanceClient.SetDefaultOptions(new BinanceClientOptions()
             {
-                ApiCredentials = new ApiCredentials("t10vBOdhYWFBKzSRJlBy6c9gXex7KmuFW8N3N8a1ex8RLGcsB1rymoUzVlG1k2bE", "5skKphsqutGePJtu05VqBTRN8aHtBEddjBrbRqz3d42IQeYGzUhADvlasGkFvpws"),
+                ApiCredentials = new ApiCredentials(Properties.Settings.Default.API, Properties.Settings.Default.Secret)
                 //LogLevel = LogLevel.Debug,
                 //LogWriters = new List<ILogger> { new ConsoleLogger() }
             });
             BinanceSocketClient.SetDefaultOptions(new BinanceSocketClientOptions()
             {
-                ApiCredentials = new ApiCredentials("t10vBOdhYWFBKzSRJlBy6c9gXex7KmuFW8N3N8a1ex8RLGcsB1rymoUzVlG1k2bE", "5skKphsqutGePJtu05VqBTRN8aHtBEddjBrbRqz3d42IQeYGzUhADvlasGkFvpws"),
+                ApiCredentials = new ApiCredentials(Properties.Settings.Default.API, Properties.Settings.Default.Secret)
                 //LogLevel = LogLevel.Debug,
                 //LogWriters = new List<ILogger> { new ConsoleLogger() }
             });
 
             using (var client = new BinanceClient())
             {
-                /* // Spot.Market | Spot market info endpoints
-                 client.Spot.Market.GetBookPriceAsync("BTCUSDT");
-                 // Spot.Order | Spot order info endpoints
-                 client.Spot.Order.GetOrdersAsync("BTCUSDT");
-                 // Spot.System | Spot system endpoints
-                 client.Spot.System.GetExchangeInfoAsync();
-                 // Spot.UserStream | Spot user stream endpoints. Should be used to subscribe to a user stream with the socket client
-                 client.Spot.UserStream.StartUserStreamAsync();
-                 // Spot.Futures | Transfer to/from spot from/to the futures account + cross-collateral endpoints
-                 client.Spot.Futures.TransferFuturesAccountAsync("ASSET", 1, FuturesTransferType.FromSpotToUsdtFutures);
-
-                 // FuturesCoin | Coin-M general endpoints
-                 client.FuturesCoin.GetPositionInformationAsync();
-                 // FuturesCoin.Market | Coin-M futures market endpoints
-                 client.FuturesCoin.Market.GetBookPricesAsync("BTCUSD");
-                 // FuturesCoin.Order | Coin-M futures order endpoints
-                 client.FuturesCoin.Order.GetUserTradesAsync();
-                 // FuturesCoin.Account | Coin-M account info
-                 client.FuturesCoin.Account.GetAccountInfoAsync();
-                 // FuturesCoin.System | Coin-M system endpoints
-                 client.FuturesCoin.System.GetExchangeInfoAsync();
-                 // FuturesCoin.UserStream | Coin-M user stream endpoints. Should be used to subscribe to a user stream with the socket client
-                 client.FuturesCoin.UserStream.StartUserStreamAsync();*/
-
-                // FuturesUsdt | USDT-M general endpoints
-                //client.FuturesUsdt.GetPositionInformationAsync();
-                // FuturesUsdt.Market | USDT-M futures market endpoints
-                //client.FuturesUsdt.Market.GetBookPricesAsync("BTCUSDT");
-                // FuturesUsdt.Order | USDT-M futures order endpoints
-                //client.FuturesUsdt.Order.GetUserTradesAsync("BTCUSDT");
-                // FuturesUsdt.Account | USDT-M account info
-                //client.FuturesUsdt.Account.GetAccountInfoAsync();
-                // FuturesUsdt.System | USDT-M system endpoints
-                //client.FuturesUsdt.System.GetExchangeInfoAsync();
-                // FuturesUsdt.UserStream | USDT-M user stream endpoints. Should be used to subscribe to a user stream with the socket client
                 await client.FuturesUsdt.UserStream.StartUserStreamAsync();
-
-                /*// General | General/account endpoints
-                client.General.GetAccountInfoAsync();
-
-                // Lending | Lending endpoints
-                client.Lending.GetFlexibleProductListAsync();
-
-                // Margin | Margin general/account info
-                client.Margin.GetMarginAccountInfoAsync();
-                // Margin.Market | Margin market endpoints
-                client.Margin.Market.GetMarginPairsAsync();
-                // Margin.Order | Margin order endpoints
-                client.Margin.Order.GetMarginAccountOrdersAsync("BTCUSDT");
-                // Margin.UserStream | Margin user stream endpoints. Should be used to subscribe to a user stream with the socket client
-                client.Margin.UserStream.StartUserStreamAsync();
-                // Margin.IsolatedUserStream | Isolated margin user stream endpoints. Should be used to subscribe to a user stream with the socket client
-                client.Margin.IsolatedUserStream.StartIsolatedMarginUserStreamAsync("BTCUSDT");
-
-                // Mining | Mining endpoints
-                client.Mining.GetMiningCoinListAsync();
-
-                // SubAccount | Sub account management
-                client.SubAccount.TransferSubAccountAsync("fromEmail", "toEmail", "asset", 1);
-
-                // Brokerage | Brokerage management
-                client.Brokerage.CreateSubAccountAsync();
-
-                // WithdrawDeposit | Withdraw and deposit endpoints
-                client.WithdrawDeposit.GetWithdrawalHistoryAsync();*/
             }
-            var socketClient = new BinanceSocketClient();
-            await socketClient.FuturesUsdt.SubscribeToAllBookTickerUpdatesAsync(data =>
+
+
+
+            await socketClient.FuturesUsdt.SubscribeToAllSymbolTickerUpdatesAsync(data =>
             {
-                Dispatcher.Invoke(() =>
+
+                for(int i=0;i<dataForTable.Count;i++)
                 {
-                    list.Items.Add(data.Data.Symbol);
-                });
-            });
-
-        }
-        private void updateData_reload()
-        {
-
-            Dispatcher.Invoke(() => {
-                updateBaseDataBinance();
-                list.Items.Add(DateTime.Now.ToString("HH:mm")+" Рестарт");
-            });
-
-        }
-            private async void updateData(object data)
-        {
-            if(indexReload<=0 && flagReload)
-            {
-                updateData_reload();
-                Dispatcher.Invoke(() => indexReload = getTimeReloadPeriod());
-            }
-            else
-            {
-                await updateDataAsync();
-                indexReload--;
-
-                
-            }
-
-        }
-
-        private async Task updateDataAsync()
-        {
-            List<DataBinance> UD = BinanceProvider.getDataBinance();
-
-
-            for (int i = 0; i < dataForTable.Count; i++)
-            {
-                foreach (DataBinance db in UD)
-                {
-                    if (dataForTable[i].symbol.Contains(db.symbol))
+                    var updateSymbol = data.Data.FirstOrDefault(d => d.Symbol == dataForTable[i].symbol);
+                    if (updateSymbol != null)
                     {
-                            Dispatcher.Invoke(() => dataForTable[i] = new DataBinanceView
+                        Dispatcher.Invoke(() => {
+                            dataForTable[i] = new DataBinanceView
                             {
-                                symbol = db.symbol,
-                                percent = Math.Round((db.lastPrice - baseDataBinance[i].lastPrice) * 100 / baseDataBinance[i].lastPrice, 3),
-                                StartPrice = baseDataBinance[i].lastPrice,
-                                link = BinanceProvider.getLink(db.symbol)
-                            });
+                                symbol = updateSymbol.Symbol,
+                                percent = Math.Round(((updateSymbol.LastPrice - dataForTable[i].StartPrice) / dataForTable[i].StartPrice) * 100, 3),
+                                link = dataForTable[i].link,
+                                StartPrice = dataForTable[i].StartPrice
+                            };
+                        } ); 
                         
-
-                        break;
+                        //dataForTable[i].percent = 
                     }
                 }
+            });
             }
+    
+
+            private void updateData(object data)
+        {
+
+            updateBaseDataBinance();
+            Dispatcher.Invoke(() => list.Items.Add(DateTime.Now.ToString("HH:mm")+" изменение стартового значения"));
         }
 
-        private void printTime()
-        {
-            int time = int.Parse(ttime_restart.Text) * int.Parse(ttime.Text);
-            var ts = TimeSpan.FromSeconds(time);
-            if(ts.Minutes==0)
-            {
-                lbReloadTime.Content = ts.Seconds + "c";
-            }
-            else
-            {
-                lbReloadTime.Content = ts.Minutes + ":" + ts.Seconds + "мин";
-            }
-            
-        }
+
+
         private void NumericOnly(System.Object sender,TextCompositionEventArgs e)
         {
            
             e.Handled = IsTextNumeric(e.Text);
-            try
-            {
-                printTime();
-            }
-            catch(Exception ex)
-            {
-                list.Items.Add("Поле не может быть пустым");
-            }
 
             
         }
@@ -383,15 +288,12 @@ namespace BinanceAPI
         }
         private void btnChangePeriod_Click(object sender, RoutedEventArgs e)
         {
-            int timeUpdate = getTimePeriod();
-            timer.Change(0, getTimePeriod());
-            list.Items.Add($"Время таймера изменено на {timeUpdate/1000}c");
+            //int timeUpdate = getTimePeriod();
+            //timer.Change(0, getTimePeriod());
+            //list.Items.Add($"Время таймера изменено на {timeUpdate/1000}c");
         }
 
-        private int getTimePeriod()
-        {
-            return int.Parse(ttime.Text)*1000;
-        }
+
 
         private void DG_Hyperlink_Click(object sender, RoutedEventArgs e)
         {
@@ -441,6 +343,12 @@ namespace BinanceAPI
         private void Settings_Click(object sender, RoutedEventArgs e)
         {
             new Settings().ShowDialog();
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            socketClient.UnsubscribeAllAsync();
+            
         }
     }
 

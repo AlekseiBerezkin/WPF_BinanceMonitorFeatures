@@ -24,15 +24,22 @@ namespace BinanceAPI
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            if(teAPI.Text=="" ||teSekret.Text=="")
+            /*if(teAPI.Text=="" ||teSekret.Text=="")
             {
                 MessageBox.Show("Заполните все поля.");
                 return;
-            }
+            }*/
 
             Properties.Settings.Default.API = teAPI.Text;
             Properties.Settings.Default.Secret = teSekret.Text;
+            Properties.Settings.Default.Save();
             this.Close();
+        }
+
+        private void SettingsWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            teAPI.Text = Properties.Settings.Default.API;
+            teSekret.Text = Properties.Settings.Default.API;
         }
     }
 }

@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:BinanceAPI"
         xmlns:dxe="http://schemas.devexpress.com/winfx/2008/xaml/editors" x:Class="BinanceAPI.MainWindow"
         mc:Ignorable="d"
-        Title="Specially for НЕОХ.ЕВАЙ!!!" Height="659" Width="764" Loaded="Window_Loaded">
+        Title="Specially for НЕОХ.ЕВАЙ!!!" Height="659" Width="764" Loaded="Window_Loaded" Closed="Window_Closed">
     <Window.Resources>
 
         <local:percentToColorConverter x:Key="percentToColorConverter" />
@@ -34,9 +34,6 @@
         <Button x:Name="Stop" Content="Стоп" Margin="0,74,124,0" VerticalAlignment="Top" Click="Button_Click_1" Height="22" HorizontalAlignment="Right" Width="50" Grid.Row="1"/>
 
         <ComboBox x:Name="cbPair" Margin="0,9,7,0" VerticalAlignment="Top" Height="22" HorizontalAlignment="Right" Width="120" Grid.Row="1"/>
-        <Label Content="Таймер обновления" Margin="0,112,130,0" VerticalAlignment="Top" IsEnabled="False" Foreground="#FF120000" Height="22" Grid.Row="1" HorizontalAlignment="Right" Width="112"/>
-
-        <dxe:TextEdit x:Name="ttime" PreviewTextInput="NumericOnly" Margin="0,112,97,0" VerticalAlignment="Top" EditValue="3" Height="22" Grid.Row="1" HorizontalAlignment="Right" Width="28"/>
         <DataGrid FontSize="14" FontWeight="Bold" x:Name="Table" ItemsSource="{Binding }"  AutoGenerateColumns="False" Margin="10,1,260,19" LoadingRow="Table_LoadingRow" Grid.Row="1">
 
 
@@ -54,15 +51,14 @@
 
             </DataGrid.Columns>
         </DataGrid>
-        <Button x:Name="btnChangePeriod" Content="Изменить" Margin="0,112,10,0" VerticalAlignment="Top" Click="btnChangePeriod_Click" Height="22" Grid.Row="1" HorizontalAlignment="Right" Width="82"/>
         <Button x:Name="btndelete" Content="Удалить" Margin="0,36,155,0" VerticalAlignment="Top" Click="btndelete_Click" Height="22" Grid.Row="1" HorizontalAlignment="Right" Width="78"/>
         <ComboBox x:Name="cbdelete" Margin="0,36,6,0" VerticalAlignment="Top" Height="22" Grid.Row="1" HorizontalAlignment="Right" Width="120"/>
         <ListBox x:Name="list" Margin="0,194,11,19" HorizontalAlignment="Right" Width="231" Grid.Row="1"/>
-        <Label x:Name="cbReload" Content="Таймер перезагрузки" Margin="0,145,99,0" VerticalAlignment="Top" IsEnabled="False" Foreground="#FF120000" Height="22" Grid.Row="1" HorizontalAlignment="Right" Width="120"/>
-        <dxe:TextEdit x:Name="ttime_restart"  PreviewTextInput="NumericOnly" Margin="0,145,66,0" VerticalAlignment="Top" EditValue="2" Height="22" Grid.Row="1" HorizontalAlignment="Right" Width="28" IsEnabled="False"/>
-        <CheckBox x:Name="cbReloadData" Content="" HorizontalAlignment="Right" Margin="0,145,219,0" Grid.RowSpan="2" VerticalAlignment="Top"/>
-        <Label x:Name="lbReloadTime" Content="1" Margin="0,145,10,0" VerticalAlignment="Top" IsEnabled="False" Foreground="#FF120000" Height="22" Grid.Row="1" HorizontalAlignment="Right" Width="50"/>
-        <Button x:Name="Settings" Content="Настройки" HorizontalAlignment="Left" Margin="667,85,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="83" Click="Settings_Click"/>
+        <Label x:Name="cbReload" Content="Таймер перезагрузки" Margin="0,114,95,0" VerticalAlignment="Top" IsEnabled="False" Foreground="#FF120000" Height="22" Grid.Row="1" HorizontalAlignment="Right" Width="120"/>
+        <dxe:TextEdit x:Name="ttime_restart"  PreviewTextInput="NumericOnly" Margin="0,114,62,0" VerticalAlignment="Top" EditValue="2" Height="22" Grid.Row="1" HorizontalAlignment="Right" Width="28" IsEnabled="False"/>
+        <CheckBox x:Name="cbReloadData" Content="" HorizontalAlignment="Right" Margin="0,114,215,0" Grid.RowSpan="2" VerticalAlignment="Top"/>
+        <Button x:Name="Settings" Content="Настройки" Margin="0,74,35,0" Grid.RowSpan="2" VerticalAlignment="Top" Click="Settings_Click" HorizontalAlignment="Right" Width="83"/>
+        <Label x:Name="cbReload_Copy" Content="мин" Margin="0,114,30,0" VerticalAlignment="Top" IsEnabled="False" Foreground="#FF120000" Height="22" Grid.Row="1" HorizontalAlignment="Right" Width="27"/>
 
     </Grid>
 

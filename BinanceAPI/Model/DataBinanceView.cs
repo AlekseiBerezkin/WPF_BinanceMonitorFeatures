@@ -8,8 +8,8 @@ namespace BinanceAPI.Model
     {
 
         public string symbol { get; set; }
-        public double percent { get; set; } = 0;
-        public double StartPrice { get; set; }
+        public decimal percent { get; set; } = 0;
+        public decimal StartPrice { get; set; }
         public string link { get; set; }
 
     }

@@ -4,15 +4,19 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BinanceAPI"
-        xmlns:dxe="http://schemas.devexpress.com/winfx/2008/xaml/editors" x:Class="BinanceAPI.Settings"
+        xmlns:dxe="http://schemas.devexpress.com/winfx/2008/xaml/editors" x:Name="SettingsWindow" x:Class="BinanceAPI.Settings"
         mc:Ignorable="d"
-        Title="Settings" Height="146" Width="444">
-    <Grid HorizontalAlignment="Right" Width="422" Margin="0,0,0,2">
-        <Button Content="Сохранить" HorizontalAlignment="Left" Margin="329,74,0,0" VerticalAlignment="Top" Click="Button_Click"/>
-        <TextBox x:Name="teAPI" HorizontalAlignment="Left" Margin="46,10,0,0" Text="TextBox" TextWrapping="Wrap" VerticalAlignment="Top" Width="365"/>
-        <TextBox x:Name="teSekret" HorizontalAlignment="Left" Margin="46,47,0,0" Text="TextBox" TextWrapping="Wrap" VerticalAlignment="Top" Width="365"/>
-        <Label Content="APIkey" HorizontalAlignment="Left" Margin="5,10,0,0" VerticalAlignment="Top"/>
-        <Label Content="SekretKey" HorizontalAlignment="Left" Margin="-9,47,0,0" VerticalAlignment="Top"/>
+        Title="Settings" ResizeMode="NoResize" Height="146" Width="668" Loaded="SettingsWindow_Loaded">
+    <Grid HorizontalAlignment="Center" Width="668" Margin="0,0,0,-6">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="0*"/>
+        </Grid.RowDefinitions>
+        <Button Content="Сохранить" HorizontalAlignment="Left" Margin="519,80,0,0" VerticalAlignment="Top" Click="Button_Click" Height="22" Width="82"/>
+        <TextBox x:Name="teAPI" HorizontalAlignment="Left" Margin="97,16,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="541" Height="22"/>
+        <TextBox x:Name="teSekret" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" Width="541" Margin="97,53,0,0" Height="22"/>
+        <Label Content="APIkey" HorizontalAlignment="Left" Margin="42,16,0,0" VerticalAlignment="Top" Height="22" Width="36"/>
+        <Label Content="SekretKey" HorizontalAlignment="Left" Margin="38,53,0,0" VerticalAlignment="Top" Width="54" Height="22"/>
 
     </Grid>
 </Window>
