@@ -1,5 +1,6 @@
 ﻿using Binance.Net;
 using Binance.Net.Objects;
+using Binance.Net.Objects.Spot.MarketData;
 using BinanceAPI.Model;
 using BinanceAPI.Provider;
 using CryptoExchange.Net.Authentication;
@@ -13,6 +14,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -63,38 +65,21 @@ namespace BinanceAPI
             InitializeComponent();
             
         }
-        private void updateBaseDataBinance()
+        private async void updateBaseDataBinance()
         {
-            baseDataBinance.Clear();
-            List<DataBinance> updateData=new List<DataBinance>(); 
-            try
-            {
-                updateData = BinanceProvider.getDataBinance();
-            }
-            catch(Exception ex)
-            {
-                list.Items.Add($"ОШИБКА:{ex}");
-                return;
-            }
 
-            foreach(DataBinanceView udb in dataForTable)
+
+            List<BinancePrice> dataBinance = BinanceProvider.getDataBinance();
+
+            foreach (DataBinanceView udb in dataForTable)
             {
-                /*symbol = updateSymbol.Symbol,
-                                percent = Math.Round((updateSymbol.LastPrice - baseDataBinance[i].lastPrice) / baseDataBinance[i].lastPrice, 3),
-                                link = BinanceProvider.getLink(updateSymbol.Symbol),
-                                StartPrice = baseDataBinance[i].lastPrice*/
-                var updateSymbol = updateData.FirstOrDefault(p => p.symbol == udb.symbol);
+                var updateSymbol = dataBinance.FirstOrDefault(p => p.Symbol == udb.symbol);
                 if(updateSymbol!=null)
                 {
-                    udb.link = BinanceProvider.getLink(updateSymbol.symbol);
-                    udb.StartPrice = updateSymbol.lastPrice;
+                    udb.link = BinanceProvider.getLink(updateSymbol.Symbol);
+                    udb.StartPrice = updateSymbol.Price;
                 }
                 
-                /*updateData.ForEach(f => { 
-                    if (f.symbol==udb.symbol) 
-                    {
-                        baseDataBinance.Add(new DataBinance { symbol = udb.symbol, lastPrice = f.lastPrice });
-                    } });*/
             }
         }
         private async void Button_Click(object sender, RoutedEventArgs e)
@@ -164,6 +149,10 @@ namespace BinanceAPI
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            foreach (string s in userData)
+            {
+                dataForTable.Add(new DataBinanceView { symbol = s, percent = 0 });
+            }
             updateBaseDataBinance();
 
             //printTime();
@@ -174,14 +163,11 @@ namespace BinanceAPI
                 cbPair.Items.Add(s);
             }
 
-            foreach(string s in userData)
-            {
-                dataForTable.Add(new DataBinanceView { symbol = s, percent = 0 }) ;
-            }
+
            
             Table.ItemsSource = dataForTable;
-            updatecbdelete();
-            Stop.IsEnabled = false;
+           // updatecbdelete();
+            //Stop.IsEnabled = false;
             //btnChangePeriod.IsEnabled = false;
             ttime_restart.IsEnabled = true;
             //dataForTable.CollectionChanged+= Users_CollectionChanged;
@@ -191,6 +177,20 @@ namespace BinanceAPI
             {
                 MessageBox.Show("API ключ или SecretKey отсутствует");
             }
+
+            //test();
+
+        }
+
+        public async Task test()
+        {
+            var client = new BinanceClient(new BinanceClientOptions()
+        {
+            // Specify options for the client
+        });
+            var callResult = await client.Spot.Market.GetPricesAsync();
+
+            var btc = callResult.Data.Where(p => Regex.Match(p.Symbol, @"(.{3})\s*$").ToString() == "BTC") ;
         }
 
     
@@ -205,7 +205,7 @@ namespace BinanceAPI
                 if (res == -1)
                 { MessageBox.Show("Валюта уже добавлена"); return; }
                 
-                dataForTable.Add(new DataBinanceView { symbol = NameCur, percent = 0 });
+                dataForTable.Add(new DataBinanceView { symbol = NameCur, percent = 0,link=BinanceProvider.getLink(NameCur) });
                 updatecbdelete();
                 list.Items.Add(DateTime.Now.ToString("HH:mm") + $" Пара {NameCur} добавлена в таблицу");
             }
@@ -231,14 +231,14 @@ namespace BinanceAPI
                 //LogWriters = new List<ILogger> { new ConsoleLogger() }
             });
 
-            using (var client = new BinanceClient())
+            /*using (var client = new BinanceClient())
             {
                 await client.FuturesUsdt.UserStream.StartUserStreamAsync();
-            }
+            }*/
 
 
 
-            await socketClient.FuturesUsdt.SubscribeToAllSymbolTickerUpdatesAsync(data =>
+            await socketClient.Spot.SubscribeToAllSymbolTickerUpdatesAsync(data =>
             {
 
                 for(int i=0;i<dataForTable.Count;i++)

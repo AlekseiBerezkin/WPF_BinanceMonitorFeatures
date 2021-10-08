@@ -1,13 +1,16 @@
 ﻿using Binance.Net;
 using Binance.Net.Objects;
+using Binance.Net.Objects.Spot.MarketData;
 using BinanceAPI.Model;
 using CryptoExchange.Net.Authentication;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Threading;
@@ -21,7 +24,7 @@ namespace BinanceAPI.Provider
 
         static string baseLinkBinance = "https://www.binance.com/ru/trade/";
 
-        public static List<DataBinance> getDataBinance()
+        public static List<BinancePrice> getDataBinance()
         {
             RequestDataBinance();
             return DB;
@@ -31,25 +34,26 @@ namespace BinanceAPI.Provider
         {
             RequestDataBinance();
         }*/
-        static List<DataBinance> DB = new List<DataBinance>();
+        static List<BinancePrice> DB = new List<BinancePrice>();
         private static void RequestDataBinance()
         {
             DB.Clear();
-            string request = $"https://www.binance.com/fapi/v1/ticker/24hr";
-
-            HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(request);
+         
             try
             {
 
-                string response;
-                HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-
-                using (StreamReader streamReader = new StreamReader(httpWebResponse.GetResponseStream()))
+                var client = new BinanceClient(new BinanceClientOptions()
                 {
-                    response = streamReader.ReadToEnd();
-                }
+                    // Specify options for the client
+                });
+                var callResult =  client.Spot.Market.GetPricesAsync();
 
-                DB = JsonConvert.DeserializeObject<List<DataBinance>>(response);
+                var btc = callResult.Result.Data.Where(p => Regex.Match(p.Symbol, @"(.{3})\s*$").ToString() == "BTC");
+
+                foreach(BinancePrice bp in btc)
+                {
+                    DB.Add(bp);
+                }
 
             }
             catch (Exception ex)
@@ -60,17 +64,17 @@ namespace BinanceAPI.Provider
 
         public static string getLink(string name)
             {
-            string currency = name.Replace("USDT", "");
-            return baseLinkBinance + currency + "_USDT";
+            string currency = name.Replace("BTC", "");
+            return baseLinkBinance + currency + "_BTC";
             }
 
         public static List<string> CurName()
         {
             RequestDataBinance();
             List<string> ListName=new List<string>();
-            foreach(DataBinance db in DB)
+            foreach(BinancePrice bp in DB)
             {
-                ListName.Add(db.symbol);
+                ListName.Add(bp.Symbol);
             }
             return ListName;
         }
