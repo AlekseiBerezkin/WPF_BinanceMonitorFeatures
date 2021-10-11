@@ -182,16 +182,6 @@ namespace BinanceAPI
 
         }
 
-        public async Task test()
-        {
-            var client = new BinanceClient(new BinanceClientOptions()
-        {
-            // Specify options for the client
-        });
-            var callResult = await client.Spot.Market.GetPricesAsync();
-
-            var btc = callResult.Data.Where(p => Regex.Match(p.Symbol, @"(.{3})\s*$").ToString() == "BTC") ;
-        }
 
     
     private void Add_Click(object sender, RoutedEventArgs e)
