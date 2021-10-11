@@ -1,5 +1,6 @@
 ﻿using Binance.Net;
 using Binance.Net.Objects;
+using Binance.Net.Objects.Spot.MarketData;
 using BinanceAPI.Model;
 using BinanceAPI.Provider;
 using CryptoExchange.Net.Authentication;
@@ -69,38 +70,21 @@ namespace BinanceAPI
         }
 
 
-        private void updateBaseDataBinance()
+        private async void updateBaseDataBinance()
         {
-            baseDataBinance.Clear();
-            List<DataBinance> updateData=new List<DataBinance>(); 
-            try
-            {
-                updateData = BinanceProvider.getDataBinance();
-            }
-            catch(Exception ex)
-            {
-                list.Items.Add($"ОШИБКА:{ex}");
-                return;
-            }
 
-            foreach(DataBinanceView udb in dataForTable)
+
+            List<BinancePrice> dataBinance = BinanceProvider.getDataBinance();
+
+            foreach (DataBinanceView udb in dataForTable)
             {
-                /*symbol = updateSymbol.Symbol,
-                                percent = Math.Round((updateSymbol.LastPrice - baseDataBinance[i].lastPrice) / baseDataBinance[i].lastPrice, 3),
-                                link = BinanceProvider.getLink(updateSymbol.Symbol),
-                                StartPrice = baseDataBinance[i].lastPrice*/
-                var updateSymbol = updateData.FirstOrDefault(p => p.symbol == udb.symbol);
-                if(updateSymbol!=null)
+                var updateSymbol = dataBinance.FirstOrDefault(p => p.Symbol == udb.symbol);
+                if (updateSymbol != null)
                 {
-                    udb.link = BinanceProvider.getLink(updateSymbol.symbol);
-                    udb.StartPrice = updateSymbol.lastPrice;
+                    udb.link = BinanceProvider.getLink(updateSymbol.Symbol);
+                    udb.StartPrice = updateSymbol.Price;
                 }
-                
-                /*updateData.ForEach(f => { 
-                    if (f.symbol==udb.symbol) 
-                    {
-                        baseDataBinance.Add(new DataBinance { symbol = udb.symbol, lastPrice = f.lastPrice });
-                    } });*/
+
             }
         }
 
@@ -186,8 +170,7 @@ namespace BinanceAPI
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             updateBaseDataBinance();
-            TelegaBot tb = new TelegaBot();
-            tb.sendAlert("ASD", "https://www.google.com/", 3);
+
             //printTime();
 
             List<string> ListName = BinanceProvider.CurName();

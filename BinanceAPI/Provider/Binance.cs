@@ -46,11 +46,11 @@ namespace BinanceAPI.Provider
                 {
                     // Specify options for the client
                 });
-                var callResult = client.Spot.Market.GetPricesAsync();
+                var callResult = client.FuturesUsdt.Market.GetPricesAsync();
 
-                var btc = callResult.Result.Data.Where(p => Regex.Match(p.Symbol, @"(.{3})\s*$").ToString() == "BTC");
+                //var btc = callResult.Result.Data.Where(p => Regex.Match(p.Symbol, @"(.{3})\s*$").ToString() == "BTC");
 
-                foreach (BinancePrice bp in btc)
+                foreach (BinancePrice bp in callResult.Result.Data)
                 {
                     DB.Add(bp);
                 }
@@ -64,8 +64,8 @@ namespace BinanceAPI.Provider
 
         public static string getLink(string name)
         {
-            string currency = name.Replace("BTC", "");
-            return baseLinkBinance + currency + "_BTC";
+            string currency = name.Replace("USDT", "");
+            return baseLinkBinance + currency + "_USDT";
         }
 
         public static List<string> CurName()
