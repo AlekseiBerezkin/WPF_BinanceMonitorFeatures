@@ -8,7 +8,7 @@
         Title="SettingsAlert" Height="171" Width="263">
     <Grid>
         <Label Content="Интервал времени" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="tbTimeInterval" HorizontalAlignment="Left" Margin="120,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="28" Height="22"/>
+        <TextBox x:Name="tbTimeInterval" HorizontalAlignment="Left" Margin="120,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="28" Height="22" PreviewTextInput="NumericOnly"/>
         <Label Content="Уведомлять при %" HorizontalAlignment="Left" Margin="10,37,0,0" VerticalAlignment="Top"/>
         <TextBox x:Name="tbAlertPercent" HorizontalAlignment="Left" Margin="120,37,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="28" Height="22"/>
         <Button Content="Сохранить" HorizontalAlignment="Left" Margin="171,121,0,0" VerticalAlignment="Top"/>

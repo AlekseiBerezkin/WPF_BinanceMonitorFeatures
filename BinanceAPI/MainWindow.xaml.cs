@@ -49,13 +49,17 @@ namespace BinanceAPI
     {
         private SolidColorBrush more = new SolidColorBrush(Colors.Green);
         private SolidColorBrush smaller = new SolidColorBrush(Colors.Red);
-        ObservableCollection<DataBinanceView> dataForTable = new ObservableCollection<DataBinanceView>();
+         ObservableCollection<DataBinanceView> dataForTable = new ObservableCollection<DataBinanceView>();
         List<string> userData = FileProvider.ReadFile();
+        List<DataBinanceView> dataBaseAlert = new List<DataBinanceView>();
         Timer timer;
+        Timer timerAlert;
         //Timer timerReload;
         int indexReload = 0;
         List<DataBinance> baseDataBinance = new List<DataBinance>();
         BinanceSocketClient socketClient = new BinanceSocketClient();
+
+
 
 
         public MainWindow()
@@ -63,6 +67,12 @@ namespace BinanceAPI
             InitializeComponent();
             
         }
+
+        private List<DataBinanceView> getObserverCollection()
+        {
+            return dataForTable.ToList();
+        }
+
         private void updateBaseDataBinance()
         {
             baseDataBinance.Clear();
@@ -97,6 +107,8 @@ namespace BinanceAPI
                     } });*/
             }
         }
+
+
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
             updateBaseDataBinance();
@@ -120,6 +132,19 @@ namespace BinanceAPI
             {
                 //flagReload = false;
                 treload = " без перезагрузки";
+            }
+
+            if (cbAlert.IsChecked.Value)
+            {
+
+                dataBaseAlert = dataForTable.ToList();
+                TimerCallback tm = new TimerCallback(checkAlert);
+                timer = new Timer(tm, 0, Properties.Settings.Default.IntervalTime*60000, Properties.Settings.Default.IntervalTime * 60000);
+            }
+            else
+            {
+                //flagReload = false;
+                //treload = " без перезагрузки";
             }
 
             cbReloadData.IsEnabled = false;
@@ -165,9 +190,10 @@ namespace BinanceAPI
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             updateBaseDataBinance();
-
+            TelegaBot tb = new TelegaBot();
+            tb.sendAlert("ASD", "https://www.google.com/", 3);
             //printTime();
-            
+
             List<string> ListName = BinanceProvider.CurName();
             foreach(string s in ListName)
             {
@@ -261,9 +287,23 @@ namespace BinanceAPI
                 }
             });
             }
-    
 
-            private void updateData(object data)
+
+        private async void checkAlert(object data)
+        {
+            TelegaBot tb = new TelegaBot();
+            decimal ThresholdPersent = Properties.Settings.Default.ChangePercent;
+            
+            for(int i=0;i<dataForTable.Count;i++)
+            {
+                decimal percent = dataForTable[i].percent - dataBaseAlert[i].percent;
+                if(percent>= ThresholdPersent)
+                {
+                    await tb.sendAlert(dataForTable[i].symbol, dataForTable[i].link, percent);
+                }
+            }
+        }
+        private void updateData(object data)
         {
 
             updateBaseDataBinance();
