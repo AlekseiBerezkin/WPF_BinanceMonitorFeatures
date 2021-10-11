@@ -6,17 +6,15 @@
         xmlns:local="clr-namespace:BinanceAPI"
         xmlns:dxe="http://schemas.devexpress.com/winfx/2008/xaml/editors" x:Name="SettingsWindow" x:Class="BinanceAPI.Settings"
         mc:Ignorable="d"
-        Title="Settings" ResizeMode="NoResize" Height="146" Width="668" Loaded="SettingsWindow_Loaded">
+        Title="Settings" ResizeMode="NoResize" Height="100" Width="668" Loaded="SettingsWindow_Loaded">
     <Grid HorizontalAlignment="Center" Width="668" Margin="0,0,0,-6">
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition Height="0*"/>
         </Grid.RowDefinitions>
-        <Button Content="Сохранить" HorizontalAlignment="Left" Margin="519,80,0,0" VerticalAlignment="Top" Click="Button_Click" Height="22" Width="82"/>
+        <Button Content="Сохранить" HorizontalAlignment="Left" Margin="556,52,0,0" VerticalAlignment="Top" Click="Button_Click" Height="22" Width="82"/>
         <TextBox x:Name="teAPI" HorizontalAlignment="Left" Margin="97,16,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="541" Height="22"/>
-        <TextBox x:Name="teSekret" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" Width="541" Margin="97,53,0,0" Height="22"/>
         <Label Content="APIkey" HorizontalAlignment="Left" Margin="42,16,0,0" VerticalAlignment="Top" Height="22" Width="36"/>
-        <Label Content="SekretKey" HorizontalAlignment="Left" Margin="38,53,0,0" VerticalAlignment="Top" Width="54" Height="22"/>
 
     </Grid>
 </Window>

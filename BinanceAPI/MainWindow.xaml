@@ -57,8 +57,11 @@
         <Label x:Name="cbReload" Content="Таймер перезагрузки" Margin="0,114,95,0" VerticalAlignment="Top" IsEnabled="False" Foreground="#FF120000" Height="22" Grid.Row="1" HorizontalAlignment="Right" Width="120"/>
         <dxe:TextEdit x:Name="ttime_restart"  PreviewTextInput="NumericOnly" Margin="0,114,62,0" VerticalAlignment="Top" EditValue="2" Height="22" Grid.Row="1" HorizontalAlignment="Right" Width="28" IsEnabled="False"/>
         <CheckBox x:Name="cbReloadData" Content="" HorizontalAlignment="Right" Margin="0,114,215,0" Grid.RowSpan="2" VerticalAlignment="Top"/>
-        <Button x:Name="Settings" Content="Настройки" Margin="0,74,35,0" Grid.RowSpan="2" VerticalAlignment="Top" Click="Settings_Click" HorizontalAlignment="Right" Width="83"/>
+        <Button x:Name="Settings" Content="API ключ" Margin="0,74,35,0" Grid.RowSpan="2" VerticalAlignment="Top" Click="Settings_Click" HorizontalAlignment="Right" Width="83"/>
         <Label x:Name="cbReload_Copy" Content="мин" Margin="0,114,30,0" VerticalAlignment="Top" IsEnabled="False" Foreground="#FF120000" Height="22" Grid.Row="1" HorizontalAlignment="Right" Width="27"/>
+        <Button x:Name="btnSetingsAlert" Content="Настройки оповещения" HorizontalAlignment="Right" Margin="0,141,10,0" Grid.RowSpan="2" VerticalAlignment="Top" Height="48" Width="108" Click="btnSetingsAlert_Click"/>
+        <Label x:Name="cbReload_Copy1" Content="Оповещение" Margin="0,154,123,0" VerticalAlignment="Top" IsEnabled="False" Foreground="#FF120000" Height="22" Grid.Row="1" HorizontalAlignment="Right" Width="76"/>
+        <CheckBox x:Name="cbAlert" Content="" HorizontalAlignment="Right" Margin="0,154,206,0" Grid.RowSpan="2" VerticalAlignment="Top"/>
 
     </Grid>
 

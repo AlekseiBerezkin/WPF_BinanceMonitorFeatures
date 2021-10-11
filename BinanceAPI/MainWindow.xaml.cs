@@ -187,9 +187,9 @@ namespace BinanceAPI
             //dataForTable.CollectionChanged+= Users_CollectionChanged;
            // test();
 
-            if(Properties.Settings.Default.API=="" || Properties.Settings.Default.Secret == "")
+            if(Properties.Settings.Default.API=="" )
             {
-                MessageBox.Show("API ключ или SecretKey отсутствует");
+                MessageBox.Show("API ключ отсутствует");
             }
         }
 
@@ -220,13 +220,13 @@ namespace BinanceAPI
         {
             BinanceClient.SetDefaultOptions(new BinanceClientOptions()
             {
-                ApiCredentials = new ApiCredentials(Properties.Settings.Default.API, Properties.Settings.Default.Secret)
+                ApiCredentials = new ApiCredentials(Properties.Settings.Default.API, Properties.Settings.Default.API)
                 //LogLevel = LogLevel.Debug,
                 //LogWriters = new List<ILogger> { new ConsoleLogger() }
             });
             BinanceSocketClient.SetDefaultOptions(new BinanceSocketClientOptions()
             {
-                ApiCredentials = new ApiCredentials(Properties.Settings.Default.API, Properties.Settings.Default.Secret)
+                ApiCredentials = new ApiCredentials(Properties.Settings.Default.API, Properties.Settings.Default.API)
                 //LogLevel = LogLevel.Debug,
                 //LogWriters = new List<ILogger> { new ConsoleLogger() }
             });
@@ -270,30 +270,15 @@ namespace BinanceAPI
             Dispatcher.Invoke(() => list.Items.Add(DateTime.Now.ToString("HH:mm")+" изменение стартового значения"));
         }
 
-
-
         private void NumericOnly(System.Object sender,TextCompositionEventArgs e)
         {
-           
             e.Handled = IsTextNumeric(e.Text);
-
-            
         }
         private static bool IsTextNumeric(string str)
         {
             System.Text.RegularExpressions.Regex reg = new System.Text.RegularExpressions.Regex("[^0-9]");
-
             return reg.IsMatch(str);
-
         }
-        private void btnChangePeriod_Click(object sender, RoutedEventArgs e)
-        {
-            //int timeUpdate = getTimePeriod();
-            //timer.Change(0, getTimePeriod());
-            //list.Items.Add($"Время таймера изменено на {timeUpdate/1000}c");
-        }
-
-
 
         private void DG_Hyperlink_Click(object sender, RoutedEventArgs e)
         {
@@ -349,6 +334,11 @@ namespace BinanceAPI
         {
             socketClient.UnsubscribeAllAsync();
             
+        }
+
+        private void btnSetingsAlert_Click(object sender, RoutedEventArgs e)
+        {
+            new SettingsAlert().ShowDialog();
         }
     }
 
