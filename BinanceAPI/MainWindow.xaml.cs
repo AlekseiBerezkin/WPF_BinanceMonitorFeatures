@@ -68,10 +68,6 @@ namespace BinanceAPI
             
         }
 
-        private List<DataBinanceView> getObserverCollection()
-        {
-            return dataForTable.ToList();
-        }
 
         private void updateBaseDataBinance()
         {
