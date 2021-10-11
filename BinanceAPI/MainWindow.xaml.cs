@@ -173,7 +173,7 @@ namespace BinanceAPI
             //dataForTable.CollectionChanged+= Users_CollectionChanged;
            // test();
 
-            if(Properties.Settings.Default.API=="" || Properties.Settings.Default.Secret == "")
+            if(Properties.Settings.Default.API=="" )
             {
                 MessageBox.Show("API ключ или SecretKey отсутствует");
             }
@@ -220,13 +220,13 @@ namespace BinanceAPI
         {
             BinanceClient.SetDefaultOptions(new BinanceClientOptions()
             {
-                ApiCredentials = new ApiCredentials(Properties.Settings.Default.API, Properties.Settings.Default.Secret)
+                ApiCredentials = new ApiCredentials(Properties.Settings.Default.API, Properties.Settings.Default.API)
                 //LogLevel = LogLevel.Debug,
                 //LogWriters = new List<ILogger> { new ConsoleLogger() }
             });
             BinanceSocketClient.SetDefaultOptions(new BinanceSocketClientOptions()
             {
-                ApiCredentials = new ApiCredentials(Properties.Settings.Default.API, Properties.Settings.Default.Secret)
+                ApiCredentials = new ApiCredentials(Properties.Settings.Default.API, Properties.Settings.Default.API)
                 //LogLevel = LogLevel.Debug,
                 //LogWriters = new List<ILogger> { new ConsoleLogger() }
             });

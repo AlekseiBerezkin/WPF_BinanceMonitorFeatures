@@ -31,7 +31,7 @@ namespace BinanceAPI
             }*/
 
             Properties.Settings.Default.API = teAPI.Text;
-            Properties.Settings.Default.Secret = teSekret.Text;
+            //Properties.Settings.Default.Secret = teSekret.Text;
             Properties.Settings.Default.Save();
             this.Close();
         }
@@ -39,7 +39,7 @@ namespace BinanceAPI
         private void SettingsWindow_Loaded(object sender, RoutedEventArgs e)
         {
             teAPI.Text = Properties.Settings.Default.API;
-            teSekret.Text = Properties.Settings.Default.API;
+            //teSekret.Text = Properties.Settings.Default.API;
         }
     }
 }
