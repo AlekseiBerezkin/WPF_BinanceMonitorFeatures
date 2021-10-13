@@ -55,9 +55,8 @@ namespace BinanceAPI
         List<DataBinanceView> dataBaseAlert = new List<DataBinanceView>();
         Timer timer;
         Timer timerAlert;
-        //Timer timerReload;
+
         int indexReload = 0;
-        List<DataBinance> baseDataBinance = new List<DataBinance>();
         BinanceSocketClient socketClient = new BinanceSocketClient();
         int stateAlert = -1;
         List<string> alertSended = new List<string>();
@@ -74,7 +73,6 @@ namespace BinanceAPI
 
         private async void updateBaseDataBinance()
         {
-
 
             List<BinancePrice> dataBinance = BinanceProvider.getDataBinance();
 
@@ -93,33 +91,30 @@ namespace BinanceAPI
 
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
-            updateBaseDataBinance();
 
-            //renderTable();
-            await StartDataStream();
             int TimerPeriod=0;
             string treload ;
             if(cbReloadData.IsChecked.Value)
             {
                 indexReload = getTimeReloadPeriod();
-                //timerReload = new Timer(tm_reload, 0, timeReload, timeReload);
-                 treload = " c перезагрузкой";
-               
+                treload = " c перезагрузкой";
+
+                Properties.Settings.Default.TimeReload = int.Parse(ttime_restart.Text);
+                Properties.Settings.Default.Save();
+
                 TimerCallback tm = new TimerCallback(updateData);
-                //TimerCallback tm_reload = new TimerCallback(updateData_reload);
                 TimerPeriod = int.Parse(ttime_restart.Text)*60000;
                 timer = new Timer(tm, 0, TimerPeriod, TimerPeriod);
             }
             else
             {
-                //flagReload = false;
                 treload = " без перезагрузки";
             }
 
             if (cbAlert.IsChecked.Value)
             {
                 int timeAlert = Properties.Settings.Default.IntervalTime*60000;
-                if(timeAlert==0 || timeAlert==TimerPeriod)
+                if(timeAlert==0 || (timeAlert==TimerPeriod && cbReloadData.IsChecked.Value))
                 {
                     stateAlert = 0;
                     list.Items.Add($"Оповещение на {Properties.Settings.Default.ChangePercent}% без интервала времени") ;
@@ -127,7 +122,7 @@ namespace BinanceAPI
                     TimerCallback tm = new TimerCallback(checkAlert);
                     timerAlert = new Timer(tm, 0, 5000, 5000);
                 }
-                else if(timeAlert>0 && timeAlert<TimerPeriod)
+                else if(timeAlert>0 && timeAlert<TimerPeriod && cbReloadData.IsChecked.Value)
                 {
                     maxCountAlert=timeAlert / 5000;
                        countAlert = 0;
@@ -137,9 +132,15 @@ namespace BinanceAPI
                     TimerCallback tm = new TimerCallback(checkAlert);
                     timerAlert = new Timer(tm, 0, 5000, 5000);
                 }
+                else if(timeAlert> TimerPeriod)
+                {
+
+                    MessageBox.Show("Время оповещения не может быть больше времени перезагрузки");
+                    return;
+                }
                 else
                 {
-                    MessageBox.Show("Ошибка парметров времени. Проверьте установленные параметры");
+                    MessageBox.Show("Оповещение не может быть установлено,т.к не установлена перезагрузка");
                     return;
                 }
 
@@ -150,6 +151,12 @@ namespace BinanceAPI
                 list.Items.Add("Запуск без оповещения  в Telegram");
             }
 
+            list.Items.Add("Получение начальных значений");
+            updateBaseDataBinance();
+
+
+            await StartDataStream();
+
             cbReloadData.IsEnabled = false;
             Start.IsEnabled = false;
             Stop.IsEnabled = true;
@@ -157,6 +164,8 @@ namespace BinanceAPI
             Add.IsEnabled = false;
             btndelete.IsEnabled = false;
             ttime_restart.IsEnabled = false;
+            cbAlert.IsEnabled = false;
+            btnSetingsAlert.IsEnabled = false;
 
             list.Items.Add(DateTime.Now.ToString("HH:mm")+ $" Старт" + treload); 
         }
@@ -173,11 +182,14 @@ namespace BinanceAPI
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
+            if(timer!=null)
+                timer.Change(Timeout.Infinite, Timeout.Infinite);
+            if (timerAlert != null)
+                timerAlert.Change(Timeout.Infinite, Timeout.Infinite);
 
-            timer.Change(Timeout.Infinite, Timeout.Infinite);
-            timerAlert.Change(Timeout.Infinite, Timeout.Infinite);
-            // if(timerReload!=null)
-            //timerReload.Change(Timeout.Infinite, Timeout.Infinite);
+
+            dataBaseAlert.Clear();
+            alertSended.Clear();
             socketClient.UnsubscribeAllAsync();
             userData = FileProvider.ReadFile();
             stateAlert = -1;
@@ -188,6 +200,8 @@ namespace BinanceAPI
             btndelete.IsEnabled = true;
             cbReloadData.IsEnabled = true;
             ttime_restart.IsEnabled = true;
+            cbAlert.IsEnabled = true;
+            btnSetingsAlert.IsEnabled = true;
             list.Items.Add(DateTime.Now.ToString("HH:mm") + $" Остановка обновления");
         }
 
@@ -198,24 +212,17 @@ namespace BinanceAPI
                 dataForTable.Add(new DataBinanceView { symbol = s, percent = 0 });
             }
             updateBaseDataBinance();
-
-            //printTime();
-
             List<string> ListName = BinanceProvider.CurName();
             foreach(string s in ListName)
             {
                 cbPair.Items.Add(s);
             }
-
-
-           
             Table.ItemsSource = dataForTable;
             updatecbdelete();
             Stop.IsEnabled = false;
-            //btnChangePeriod.IsEnabled = false;
             ttime_restart.IsEnabled = true;
-            //dataForTable.CollectionChanged+= Users_CollectionChanged;
-           // test();
+
+            ttime_restart.Text = Properties.Settings.Default.TimeReload.ToString();
 
             if(Properties.Settings.Default.API=="" )
             {
@@ -324,7 +331,7 @@ namespace BinanceAPI
                         timerAlert.Change(Timeout.Infinite, Timeout.Infinite);
                         Dispatcher.Invoke(() =>
                         {
-                            list.Items.Add("Стойп таймер оповещения");
+                            list.Items.Add("Стоп таймера оповещения");
                         });
                     }
                     else
@@ -347,7 +354,7 @@ namespace BinanceAPI
                     list.Items.Add(DateTime.Now.ToString("HH:mm") + " перезапись данных для оповещения");
                     if(stateAlert==1)
                     {
-                        list.Items.Add("Старт таймер оповещения");
+                        list.Items.Add("Старт таймера оповещения");
                         timerAlert.Change(5000, 5000);
                         countAlert = 0;
                     }
