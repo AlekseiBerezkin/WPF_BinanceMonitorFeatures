@@ -8,7 +8,7 @@ namespace BinanceAPI.Provider
 {
     class TelegaBot
     {
-        static string botToken = "2014832019:AAEiuyoqW16V8LSkgGi9h7PQM1-5dunas8w";
+        static string botToken = Properties.Settings.Default.TGtoken;
         private TelegramBotClient Bot;
 
          public TelegaBot()

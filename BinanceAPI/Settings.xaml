@@ -6,8 +6,8 @@
         xmlns:local="clr-namespace:BinanceAPI"
         xmlns:dxe="http://schemas.devexpress.com/winfx/2008/xaml/editors" x:Name="SettingsWindow" x:Class="BinanceAPI.Settings"
         mc:Ignorable="d"
-        Title="Settings" ResizeMode="NoResize" Height="100" Width="668" Loaded="SettingsWindow_Loaded">
-    <Grid HorizontalAlignment="Center" Width="668" Margin="0,0,0,-6">
+        Title="Settings" ResizeMode="NoResize" Height="122" Width="668" Loaded="SettingsWindow_Loaded">
+    <Grid HorizontalAlignment="Center" Width="668" Margin="0,0,0,-26">
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition Height="0*"/>

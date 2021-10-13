@@ -8,8 +8,10 @@ namespace BinanceAPI.Provider
 {
     static class  FileProvider
     {
+        
         static public List<string> ReadFile()
         {
+            
             try
             {
                 List<string> data = new List<string>();

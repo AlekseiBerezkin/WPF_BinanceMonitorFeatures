@@ -65,6 +65,8 @@ namespace BinanceAPI.Provider
         public static string getLink(string name)
         {
             string currency = name.Replace("USDT", "");
+            currency = currency.Replace("0","");
+            currency = currency.Replace("1", "");
             return baseLinkBinance + currency + "_USDT";
         }
 
