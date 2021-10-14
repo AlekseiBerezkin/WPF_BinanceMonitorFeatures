@@ -275,10 +275,10 @@ namespace BinanceAPI
 
 
 
-            await socketClient.FuturesUsdt.SubscribeToAllSymbolTickerUpdatesAsync(data =>
+            await socketClient.Spot.SubscribeToAllSymbolTickerUpdatesAsync(data =>
             {
 
-                for(int i=0;i<dataForTable.Count;i++)
+                for (int i = 0; i < dataForTable.Count; i++)
                 {
                     var updateSymbol = data.Data.FirstOrDefault(d => d.Symbol == dataForTable[i].symbol);
                     if (updateSymbol != null)
@@ -291,13 +291,13 @@ namespace BinanceAPI
                                 link = dataForTable[i].link,
                                 StartPrice = dataForTable[i].StartPrice
                             };
-                        } ); 
-                        
+                        });
+
                         //dataForTable[i].percent = 
                     }
                 }
             });
-            }
+        }
 
 
         private async void checkAlert(object data)
