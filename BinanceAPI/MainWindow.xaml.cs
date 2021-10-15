@@ -268,10 +268,10 @@ namespace BinanceAPI
                 //LogWriters = new List<ILogger> { new ConsoleLogger() }
             });
 
-            using (var client = new BinanceClient())
+            /*using (var client = new BinanceClient())
             {
                 await client.FuturesUsdt.UserStream.StartUserStreamAsync();
-            }
+            }*/
 
 
 

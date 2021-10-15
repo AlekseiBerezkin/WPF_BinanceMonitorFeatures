@@ -70,7 +70,7 @@ namespace BinanceAPI
 
 
                 Properties.Settings.Default.IntervalTime = int.Parse(tbTimeInterval.Text);
-
+                Properties.Settings.Default.Save();
                 this.Close();
 
             }
