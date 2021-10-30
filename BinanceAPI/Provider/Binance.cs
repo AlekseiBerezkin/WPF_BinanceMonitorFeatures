@@ -22,7 +22,7 @@ namespace BinanceAPI.Provider
 
 
 
-        static string baseLinkBinance = "https://www.binance.com/ru/trade/";
+        static string baseLinkBinance = "https://www.binance.com/ru/futures/";
 
         public static List<BinancePrice> getDataBinance()
         {
@@ -64,10 +64,10 @@ namespace BinanceAPI.Provider
 
         public static string getLink(string name)
         {
-            string currency = name.Replace("USDT", "");
-            currency = currency.Replace("0","");
+           
+            string currency = name.Replace("0","");
             currency = currency.Replace("1", "");
-            return baseLinkBinance + currency + "_USDT";
+            return baseLinkBinance + currency + "_perpetual";
         }
 
         public static List<string> CurName()

@@ -4,7 +4,9 @@ using Binance.Net.Objects.Spot.MarketData;
 using BinanceAPI.Model;
 using BinanceAPI.Provider;
 using CryptoExchange.Net.Authentication;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -48,6 +50,7 @@ namespace BinanceAPI
     /// </summary>
     public partial class MainWindow : Window
     {
+        Logger logger = LogManager.GetCurrentClassLogger();
         private SolidColorBrush more = new SolidColorBrush(Colors.Green);
         private SolidColorBrush smaller = new SolidColorBrush(Colors.Red);
          ObservableCollection<DataBinanceView> dataForTable = new ObservableCollection<DataBinanceView>();
@@ -73,101 +76,118 @@ namespace BinanceAPI
 
         private async void updateBaseDataBinance()
         {
-
-            List<BinancePrice> dataBinance = BinanceProvider.getDataBinance();
-
-            foreach (DataBinanceView udb in dataForTable)
+            try
             {
-                var updateSymbol = dataBinance.FirstOrDefault(p => p.Symbol == udb.symbol);
-                if (updateSymbol != null)
-                {
-                    udb.link = BinanceProvider.getLink(updateSymbol.Symbol);
-                    udb.StartPrice = updateSymbol.Price;
-                }
+                List<BinancePrice> dataBinance = BinanceProvider.getDataBinance();
 
+                foreach (DataBinanceView udb in dataForTable)
+                {
+                    var updateSymbol = dataBinance.FirstOrDefault(p => p.Symbol == udb.symbol);
+                    if (updateSymbol != null)
+                    {
+                        udb.link = BinanceProvider.getLink(updateSymbol.Symbol);
+                        udb.StartPrice = updateSymbol.Price;
+                    }
+
+                }
             }
+            catch(Exception ex)
+            {
+                logger.Error(ex);
+                MessageBox.Show("Ошибка при обновлении базовых данных"+ex,"ОШИБКА",MessageBoxButton.OK,MessageBoxImage.Error);
+            }
+
         }
 
 
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
-
-            int TimerPeriod=0;
-            string treload ;
-            if(cbReloadData.IsChecked.Value)
+            logger.Info("Кнопка старт");
+            try
             {
-                indexReload = getTimeReloadPeriod();
-                treload = " c перезагрузкой";
-
-                Properties.Settings.Default.TimeReload = int.Parse(ttime_restart.Text);
-                Properties.Settings.Default.Save();
-
-                TimerCallback tm = new TimerCallback(updateData);
-                TimerPeriod = int.Parse(ttime_restart.Text)*60000;
-                timer = new Timer(tm, 0, TimerPeriod, TimerPeriod);
-            }
-            else
-            {
-                treload = " без перезагрузки";
-            }
-
-            if (cbAlert.IsChecked.Value)
-            {
-                int timeAlert = Properties.Settings.Default.IntervalTime*60000;
-                if(timeAlert==0 || (timeAlert==TimerPeriod && cbReloadData.IsChecked.Value))
+                int TimerPeriod = 0;
+                string treload;
+                if (cbReloadData.IsChecked.Value)
                 {
-                    stateAlert = 0;
-                    list.Items.Add($"Оповещение на {Properties.Settings.Default.ChangePercent}% без интервала времени") ;
-                    dataBaseAlert = dataForTable.ToList();
-                    TimerCallback tm = new TimerCallback(checkAlert);
-                    timerAlert = new Timer(tm, 0, 5000, 5000);
-                }
-                else if(timeAlert>0 && timeAlert<TimerPeriod && cbReloadData.IsChecked.Value)
-                {
-                    maxCountAlert=timeAlert / 5000;
-                       countAlert = 0;
-                    stateAlert = 1;
-                    list.Items.Add($"Оповещение на {Properties.Settings.Default.ChangePercent}% в отрезке времени {Properties.Settings.Default.IntervalTime} мин");
-                    dataBaseAlert = dataForTable.ToList();
-                    TimerCallback tm = new TimerCallback(checkAlert);
-                    timerAlert = new Timer(tm, 0, 5000, 5000);
-                }
-                else if(timeAlert> TimerPeriod)
-                {
+                    indexReload = getTimeReloadPeriod();
+                    treload = " c перезагрузкой";
 
-                    MessageBox.Show("Время оповещения не может быть больше времени перезагрузки");
-                    return;
+                    Properties.Settings.Default.TimeReload = int.Parse(ttime_restart.Text);
+                    Properties.Settings.Default.Save();
+
+                    TimerCallback tm = new TimerCallback(updateData);
+                    TimerPeriod = int.Parse(ttime_restart.Text) * 60000;
+                    timer = new Timer(tm, 0, TimerPeriod, TimerPeriod);
                 }
                 else
                 {
-                    MessageBox.Show("Оповещение не может быть установлено,т.к не установлена перезагрузка");
-                    return;
+                    treload = " без перезагрузки";
                 }
 
+                if (cbAlert.IsChecked.Value)
+                {
+                    int timeAlert = Properties.Settings.Default.IntervalTime * 60000;
+                    if (timeAlert == 0 || (timeAlert == TimerPeriod && cbReloadData.IsChecked.Value))
+                    {
+                        stateAlert = 0;
+                        list.Items.Add($"Оповещение на {Properties.Settings.Default.ChangePercent}% без интервала времени");
+                        dataBaseAlert = dataForTable.ToList();
+                        TimerCallback tm = new TimerCallback(checkAlert);
+                        timerAlert = new Timer(tm, 0, 5000, 5000);
+                    }
+                    else if (timeAlert > 0 && timeAlert < TimerPeriod && cbReloadData.IsChecked.Value)
+                    {
+                        maxCountAlert = timeAlert / 5000;
+                        countAlert = 0;
+                        stateAlert = 1;
+                        list.Items.Add($"Оповещение на {Properties.Settings.Default.ChangePercent}% в отрезке времени {Properties.Settings.Default.IntervalTime} мин");
+                        dataBaseAlert = dataForTable.ToList();
+                        TimerCallback tm = new TimerCallback(checkAlert);
+                        timerAlert = new Timer(tm, 0, 5000, 5000);
+                    }
+                    else if (timeAlert > TimerPeriod)
+                    {
 
+                        MessageBox.Show("Время оповещения не может быть больше времени перезагрузки");
+                        return;
+                    }
+                    else
+                    {
+                        MessageBox.Show("Оповещение не может быть установлено,т.к не установлена перезагрузка");
+                        return;
+                    }
+
+
+                }
+                else
+                {
+                    list.Items.Add("Запуск без оповещения  в Telegram");
+                }
+
+                list.Items.Add("Получение начальных значений");
+                updateBaseDataBinance();
+
+
+                await StartDataStream();
+
+                cbReloadData.IsEnabled = false;
+                Start.IsEnabled = false;
+                Stop.IsEnabled = true;
+                //btnChangePeriod.IsEnabled = true;
+                Add.IsEnabled = false;
+                btndelete.IsEnabled = false;
+                ttime_restart.IsEnabled = false;
+                cbAlert.IsEnabled = false;
+                btnSetingsAlert.IsEnabled = false;
+
+                list.Items.Add(DateTime.Now.ToString("HH:mm") + $" Старт" + treload);
             }
-            else
+            catch(Exception ex)
             {
-                list.Items.Add("Запуск без оповещения  в Telegram");
+                logger.Error(ex);
+                MessageBox.Show("Ошибка при старте " + ex, "ОШИБКА", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-
-            list.Items.Add("Получение начальных значений");
-            updateBaseDataBinance();
-
-
-            await StartDataStream();
-
-            cbReloadData.IsEnabled = false;
-            Start.IsEnabled = false;
-            Stop.IsEnabled = true;
-            //btnChangePeriod.IsEnabled = true;
-            Add.IsEnabled = false;
-            btndelete.IsEnabled = false;
-            ttime_restart.IsEnabled = false;
-            cbAlert.IsEnabled = false;
-            btnSetingsAlert.IsEnabled = false;
-
-            list.Items.Add(DateTime.Now.ToString("HH:mm")+ $" Старт" + treload); 
+            
         }
 
         private void updatecbdelete()
@@ -175,59 +195,93 @@ namespace BinanceAPI
             cbdelete.Items.Clear();
             foreach (DataBinanceView s in dataForTable)
             {
-                
                 cbdelete.Items.Add(s.symbol);
             }
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            if(timer!=null)
-                timer.Change(Timeout.Infinite, Timeout.Infinite);
-            if (timerAlert != null)
-                timerAlert.Change(Timeout.Infinite, Timeout.Infinite);
+            try
+            {
+                if (timer != null)
+                    timer.Change(Timeout.Infinite, Timeout.Infinite);
+                if (timerAlert != null)
+                    timerAlert.Change(Timeout.Infinite, Timeout.Infinite);
 
 
-            dataBaseAlert.Clear();
-            alertSended.Clear();
-            socketClient.UnsubscribeAllAsync();
-            userData = FileProvider.ReadFile();
-            stateAlert = -1;
-            Start.IsEnabled = true;
-            Stop.IsEnabled = false;
-            //btnChangePeriod.IsEnabled = false;
-            Add.IsEnabled = true;
-            btndelete.IsEnabled = true;
-            cbReloadData.IsEnabled = true;
-            ttime_restart.IsEnabled = true;
-            cbAlert.IsEnabled = true;
-            btnSetingsAlert.IsEnabled = true;
-            list.Items.Add(DateTime.Now.ToString("HH:mm") + $" Остановка обновления");
+                dataBaseAlert.Clear();
+                alertSended.Clear();
+                socketClient.UnsubscribeAllAsync();
+                userData = FileProvider.ReadFile();
+                stateAlert = -1;
+                Start.IsEnabled = true;
+                Stop.IsEnabled = false;
+                //btnChangePeriod.IsEnabled = false;
+                Add.IsEnabled = true;
+                btndelete.IsEnabled = true;
+                cbReloadData.IsEnabled = true;
+                ttime_restart.IsEnabled = true;
+                cbAlert.IsEnabled = true;
+                btnSetingsAlert.IsEnabled = true;
+                list.Items.Add(DateTime.Now.ToString("HH:mm") + $" Остановка обновления");
+            }
+            catch(Exception ex)
+            {
+                logger.Error(ex);
+                MessageBox.Show("Ошибка при остановке " + ex, "ОШИБКА", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            
         }
 
+        private void LogParamStart()
+        {
+            bool flagRestart=cbReloadData.IsChecked.Value;
+            bool flagAlert = cbAlert.IsChecked.Value;
+            string timeRestart= Properties.Settings.Default.TimeReload.ToString();
+            string timeAlert= Properties.Settings.Default.IntervalTime.ToString();
+            string tresholdAlert = Properties.Settings.Default.ChangePercent.ToString();
+
+            logger.Info($"__________________________________________________________________________");
+            logger.Info($"Старт таймера с параметрами:\n" +
+                $"Флаг перезагрузки:{flagRestart}\n" +
+                $"Флаг оповещения:{flagAlert}\n" +
+                $"Время рестарта:{timeRestart}\n" +
+                $"Время оповещения:{timeAlert}\n" +
+                $"Порог оповещения:{tresholdAlert}");
+        }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            foreach (string s in userData)
+            LogParamStart();
+            try
             {
-                dataForTable.Add(new DataBinanceView { symbol = s, percent = 0 });
-            }
-            updateBaseDataBinance();
-            List<string> ListName = BinanceProvider.CurName();
-            foreach(string s in ListName)
-            {
-                cbPair.Items.Add(s);
-            }
-            Table.ItemsSource = dataForTable;
-            updatecbdelete();
-            Stop.IsEnabled = false;
-            ttime_restart.IsEnabled = true;
+                foreach (string s in userData)
+                {
+                    dataForTable.Add(new DataBinanceView { symbol = s, percent = 0 });
+                }
+                updateBaseDataBinance();
+                List<string> ListName = BinanceProvider.CurName();
+                foreach (string s in ListName)
+                {
+                    cbPair.Items.Add(s);
+                }
+                Table.ItemsSource = dataForTable;
+                updatecbdelete();
+                Stop.IsEnabled = false;
+                ttime_restart.IsEnabled = true;
 
-            ttime_restart.Text = Properties.Settings.Default.TimeReload.ToString();
+                ttime_restart.Text = Properties.Settings.Default.TimeReload.ToString();
 
-            if(Properties.Settings.Default.API=="" )
-            {
-                MessageBox.Show("API ключ отсутствует");
+                if (Properties.Settings.Default.API == "")
+                {
+                    MessageBox.Show("API ключ отсутствует");
+                }
             }
+            catch(Exception ex)
+            {
+                logger.Error(ex);
+                MessageBox.Show("Ошибка при загрузке программы " + ex, "ОШИБКА", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            
         }
 
     
@@ -255,111 +309,137 @@ namespace BinanceAPI
 
         public async Task StartDataStream()
         {
-            BinanceClient.SetDefaultOptions(new BinanceClientOptions()
+            logger.Info("Старт стрима");
+            try
             {
-                ApiCredentials = new ApiCredentials(Properties.Settings.Default.API, Properties.Settings.Default.API)
-                //LogLevel = LogLevel.Debug,
-                //LogWriters = new List<ILogger> { new ConsoleLogger() }
-            });
-            BinanceSocketClient.SetDefaultOptions(new BinanceSocketClientOptions()
-            {
-                ApiCredentials = new ApiCredentials(Properties.Settings.Default.API, Properties.Settings.Default.API)
-                //LogLevel = LogLevel.Debug,
-                //LogWriters = new List<ILogger> { new ConsoleLogger() }
-            });
-
-            using (var client = new BinanceClient())
-            {
-                await client.FuturesUsdt.UserStream.StartUserStreamAsync();
-            }
-
-
-
-            await socketClient.FuturesUsdt.SubscribeToAllSymbolTickerUpdatesAsync(data =>
-            {
-
-                for(int i=0;i<dataForTable.Count;i++)
+                BinanceClient.SetDefaultOptions(new BinanceClientOptions()
                 {
-                    var updateSymbol = data.Data.FirstOrDefault(d => d.Symbol == dataForTable[i].symbol);
-                    if (updateSymbol != null)
-                    {
-                        Dispatcher.Invoke(() => {
-                            dataForTable[i] = new DataBinanceView
-                            {
-                                symbol = updateSymbol.Symbol,
-                                percent = Math.Round(((updateSymbol.LastPrice - dataForTable[i].StartPrice) / dataForTable[i].StartPrice) * 100, 3),
-                                link = dataForTable[i].link,
-                                StartPrice = dataForTable[i].StartPrice
-                            };
-                        } ); 
-                        
-                        //dataForTable[i].percent = 
-                    }
+                    ApiCredentials = new ApiCredentials(Properties.Settings.Default.API, Properties.Settings.Default.API)
+                    //LogLevel = LogLevel.Debug,
+                    //LogWriters = new List<ILogger> { new ConsoleLogger() }
+                });
+                BinanceSocketClient.SetDefaultOptions(new BinanceSocketClientOptions()
+                {
+                    ApiCredentials = new ApiCredentials(Properties.Settings.Default.API, Properties.Settings.Default.API)
+                    //LogLevel = LogLevel.Debug,
+                    //LogWriters = new List<ILogger> { new ConsoleLogger() }
+                });
+
+                using (var client = new BinanceClient())
+                {
+                    await client.FuturesUsdt.UserStream.StartUserStreamAsync();
                 }
-            });
+
+
+
+                await socketClient.FuturesUsdt.SubscribeToAllSymbolTickerUpdatesAsync(data =>
+                {
+
+                    for (int i = 0; i < dataForTable.Count; i++)
+                    {
+                        var updateSymbol = data.Data.FirstOrDefault(d => d.Symbol == dataForTable[i].symbol);
+                        if (updateSymbol != null)
+                        {
+                            Dispatcher.Invoke(() => {
+                                dataForTable[i] = new DataBinanceView
+                                {
+                                    symbol = updateSymbol.Symbol,
+                                    percent = Math.Round(((updateSymbol.LastPrice - dataForTable[i].StartPrice) / dataForTable[i].StartPrice) * 100, 3),
+                                    link = dataForTable[i].link,
+                                    StartPrice = dataForTable[i].StartPrice
+                                };
+                            });
+
+                            //dataForTable[i].percent = 
+                        }
+                    }
+                });
+            }
+            catch(Exception ex)
+            {
+                logger.Error(ex);
+                MessageBox.Show("Ошибка при старте стрима " + ex, "ОШИБКА", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+           
             }
 
 
         private async void checkAlert(object data)
         {
-            TelegaBot tb = new TelegaBot();
-            decimal ThresholdPersent = Properties.Settings.Default.ChangePercent;
-            
-            for(int i=0;i<dataForTable.Count;i++)
+            try
             {
-                decimal percent = dataForTable[i].percent - dataBaseAlert[i].percent;
-                if(percent>= ThresholdPersent)
+                TelegaBot tb = new TelegaBot();
+                decimal ThresholdPersent = Properties.Settings.Default.ChangePercent;
+
+                for (int i = 0; i < dataForTable.Count; i++)
                 {
-                    if(!alertSended.Contains(dataForTable[i].symbol))
+                    decimal percent = dataForTable[i].percent - dataBaseAlert[i].percent;
+                    if (percent >= ThresholdPersent)
                     {
-                        await tb.sendAlert(dataForTable[i].symbol, dataForTable[i].link, percent);
-                        alertSended.Add(dataForTable[i].symbol);
+                        if (!alertSended.Contains(dataForTable[i].symbol))
+                        {
+                            await tb.sendAlert(dataForTable[i].symbol, dataForTable[i].link, percent);
+                            alertSended.Add(dataForTable[i].symbol);
+                        }
                     }
-                    
-                    
+                }
+
+                switch (stateAlert)
+                {
+                    case 0:
+
+                        break;
+                    case 1:
+                        if (countAlert == maxCountAlert)
+                        {
+                            timerAlert.Change(Timeout.Infinite, Timeout.Infinite);
+                            Dispatcher.Invoke(() =>
+                            {
+                                list.Items.Add("Стоп таймера оповещения");
+                            });
+                        }
+                        else
+                        {
+                            countAlert++;
+                        }
+
+                        break;
                 }
             }
-
-            switch(stateAlert)
+            catch(Exception ex)
             {
-                case 0:
-
-                    break;
-                case 1:
-                    if(countAlert==maxCountAlert)
-                    {
-                        timerAlert.Change(Timeout.Infinite, Timeout.Infinite);
-                        Dispatcher.Invoke(() =>
-                        {
-                            list.Items.Add("Стоп таймера оповещения");
-                        });
-                    }
-                    else
-                    {
-                        countAlert++;
-                    }
-                    
-                    break;
+                logger.Error(ex);
+                MessageBox.Show("Ошибка при проверке алерта " + ex, "ОШИБКА", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+
         }
         private void updateData(object data)
         {
-            updateBaseDataBinance();
-            Dispatcher.Invoke(() => { 
-                list.Items.Add(DateTime.Now.ToString("HH:mm") + " изменение стартового значения");
-                if(cbAlert.IsChecked.Value)
-                {
-                    dataBaseAlert = dataForTable.ToList();
-                    alertSended.Clear();
-                    list.Items.Add(DateTime.Now.ToString("HH:mm") + " перезапись данных для оповещения");
-                    if(stateAlert==1)
+            try
+            {
+                updateBaseDataBinance();
+                Dispatcher.Invoke(() => {
+                    list.Items.Add(DateTime.Now.ToString("HH:mm") + " изменение стартового значения");
+                    if (cbAlert.IsChecked.Value)
                     {
-                        list.Items.Add("Старт таймера оповещения");
-                        timerAlert.Change(5000, 5000);
-                        countAlert = 0;
+                        dataBaseAlert = dataForTable.ToList();
+                        alertSended.Clear();
+                        list.Items.Add(DateTime.Now.ToString("HH:mm") + " перезапись данных для оповещения");
+                        if (stateAlert == 1)
+                        {
+                            list.Items.Add("Старт таймера оповещения");
+                            timerAlert.Change(5000, 5000);
+                            countAlert = 0;
+                        }
                     }
-                }
-            });
+                });
+            }
+            catch(Exception ex)
+            {
+                logger.Error(ex);
+                MessageBox.Show("Ошибка при обновлении данных " + ex, "ОШИБКА", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
         }
 
         private void NumericOnly(System.Object sender,TextCompositionEventArgs e)
@@ -423,12 +503,14 @@ namespace BinanceAPI
 
         private void Window_Closed(object sender, EventArgs e)
         {
+            logger.Info("Программа закрыта");
             socketClient.UnsubscribeAllAsync();
             
         }
 
         private void btnSetingsAlert_Click(object sender, RoutedEventArgs e)
         {
+            logger.Info("Открытие окна оповещения");
             new SettingsAlert().ShowDialog();
         }
     }
