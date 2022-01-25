@@ -5,19 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BinanceAPI"
         mc:Ignorable="d"
-        Title="SettingsAlert" ResizeMode="NoResize" Height="196" Width="301" Loaded="Window_Loaded">
+        Title="SettingsAlert" ResizeMode="NoResize" Height="228" Width="301" Loaded="Window_Loaded">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="187*"/>
-            <ColumnDefinition Width="76*"/>
+            <ColumnDefinition Width="167*"/>
+            <ColumnDefinition Width="47*"/>
+            <ColumnDefinition Width="87*"/>
         </Grid.ColumnDefinitions>
         <Label Content="Интервал времени" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
         <TextBox x:Name="tbTimeInterval" HorizontalAlignment="Left" Margin="120,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="28" Height="22" PreviewTextInput="NumericOnly" Visibility="Hidden"/>
         <Label Content="Уведомлять при %" HorizontalAlignment="Left" Margin="10,37,0,0" VerticalAlignment="Top"/>
         <TextBox x:Name="tbAlertPercent" HorizontalAlignment="Left" Margin="120,37,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="28" Height="22" PreviewTextInput="NumericOnly"/>
-        <Button x:Name="btnSave" Content="Сохранить" HorizontalAlignment="Left" Margin="171,121,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Click="btnSave_Click"/>
-        <Label Content="ChatId в телеграмм для уведомлений" HorizontalAlignment="Left" Margin="10,64,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
-        <TextBox x:Name="tbNameTGalert" HorizontalAlignment="Left" Margin="10,91,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="194" Height="22" Grid.ColumnSpan="2" PreviewTextInput="NumericOnly"/>
+        <Button x:Name="btnSave" Content="Сохранить" HorizontalAlignment="Left" Margin="34,148,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Click="btnSave_Click" Grid.Column="1"/>
+        <Label Content="ChatId в телеграмм для уведомлений" HorizontalAlignment="Left" Margin="10,64,0,0" VerticalAlignment="Top" Grid.ColumnSpan="3"/>
+        <TextBox x:Name="tbNameTGalert" HorizontalAlignment="Left" Margin="10,91,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="273" Height="52" Grid.ColumnSpan="3" PreviewTextInput="NumericOnly"/>
         <Label Content="минут" HorizontalAlignment="Left" Margin="153,10,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Visibility="Hidden"/>
 
     </Grid>

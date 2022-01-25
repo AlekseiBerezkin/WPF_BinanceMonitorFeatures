@@ -43,7 +43,7 @@ namespace BinanceAPI
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            tbNameTGalert.Text = Properties.Settings.Default.ChatId.ToString();
+            tbNameTGalert.Text = Properties.Settings.Default.ChatId;
             tbAlertPercent.Text = Properties.Settings.Default.ChangePercent.ToString();
             tbTimeInterval.Text = Properties.Settings.Default.IntervalTime.ToString();
         }
@@ -52,7 +52,7 @@ namespace BinanceAPI
         {
             try
             {
-                Properties.Settings.Default.ChatId = int.Parse(tbNameTGalert.Text);
+                Properties.Settings.Default.ChatId = tbNameTGalert.Text;
 
                 string dataPercent = tbAlertPercent.Text;
                 if((dataPercent.Count(x => x == '.' || x == ','))>=2)

@@ -17,7 +17,13 @@ namespace BinanceAPI.Provider
         }
         public async Task sendAlert(string name,string link, decimal percent)
         {
-            await Bot.SendTextMessageAsync(Properties.Settings.Default.ChatId, $"Актив {name} достиг {percent} %.\nСсылка:{link}");
+            string []chatIdList = Properties.Settings.Default.ChatId.Split(',');
+
+            foreach(string chatId in chatIdList)
+            {
+                await Bot.SendTextMessageAsync(chatId.ToString(), $"Актив {name} достиг {percent} %.\nСсылка:{link}");
+            }
+            
         }
     }
 }
