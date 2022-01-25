@@ -29,7 +29,7 @@ namespace BinanceAPI
         }
         private static bool IsTextNumeric(string str)
         {
-            if(str==",")
+            if(str=="," || str == "-")
             {
                 return false;
             }

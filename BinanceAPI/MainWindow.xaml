@@ -59,7 +59,6 @@
                 <SolidColorBrush Color="#FF040100" Opacity="1"/>
             </Label.Foreground>
         </Label>
-        <dxe:TextEdit x:Name="ttime_restart"  PreviewTextInput="NumericOnly" Margin="0,114,62,0" VerticalAlignment="Top" EditValue="2" Height="22" Grid.Row="1" HorizontalAlignment="Right" Width="28" Visibility="Hidden"/>
         <CheckBox x:Name="cbReloadData" Content="" HorizontalAlignment="Right" Margin="0,114,215,0" Grid.RowSpan="2" VerticalAlignment="Top" IsChecked="True" Visibility="Hidden"/>
         <Button x:Name="Settings" Content="API ключ" Margin="0,74,35,0" Grid.RowSpan="2" VerticalAlignment="Top" Click="Settings_Click" HorizontalAlignment="Right" Width="83" ScrollViewer.VerticalScrollBarVisibility="Visible" Visibility="Hidden"/>
         <Label x:Name="cbReload_Copy" Content="мин" Margin="0,114,30,0" VerticalAlignment="Top" Foreground="#FF120000" Height="22" Grid.Row="1" HorizontalAlignment="Right" Width="27" Visibility="Hidden"/>

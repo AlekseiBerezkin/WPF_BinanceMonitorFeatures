@@ -119,7 +119,6 @@ namespace BinanceAPI
                 Stop.IsEnabled = true;
                 Add.IsEnabled = false;
                 btndelete.IsEnabled = false;
-                ttime_restart.IsEnabled = false;
                 cbAlert.IsEnabled = false;
                 btnSetingsAlert.IsEnabled = false;
 
@@ -162,7 +161,6 @@ namespace BinanceAPI
                 Add.IsEnabled = true;
                 btndelete.IsEnabled = true;
                 cbReloadData.IsEnabled = true;
-                ttime_restart.IsEnabled = true;
                 cbAlert.IsEnabled = true;
                 btnSetingsAlert.IsEnabled = true;
                 list.Items.Add(DateTime.Now.ToString("HH:mm") + $" Остановка обновления");
@@ -209,9 +207,6 @@ namespace BinanceAPI
                 Table.ItemsSource = dataForTable;
                 updatecbdelete();
                 Stop.IsEnabled = false;
-                ttime_restart.IsEnabled = true;
-
-                ttime_restart.Text = Properties.Settings.Default.TimeReload.ToString();
 
                 if (Properties.Settings.Default.API == "")
                 {
@@ -417,10 +412,6 @@ namespace BinanceAPI
             {
                 MessageBox.Show(ex.ToString());
             }
-        }
-        private int getTimeReloadPeriod()
-        {
-            return int.Parse(ttime_restart.Text);
         }
 
         private void btndelete_Click(object sender, RoutedEventArgs e)

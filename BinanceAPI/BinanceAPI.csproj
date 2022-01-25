@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <PackageReference Include="Binance.Net" Version="7.2.2" />
-    <PackageReference Include="devexpress.wpf.core" Version="21.1.4" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NLog" Version="4.7.12" />
     <PackageReference Include="Telegram.Bot" Version="16.0.2" />
