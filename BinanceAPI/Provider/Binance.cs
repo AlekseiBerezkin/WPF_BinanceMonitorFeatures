@@ -42,13 +42,8 @@ namespace BinanceAPI.Provider
             try
             {
 
-                var client = new BinanceClient(new BinanceClientOptions()
-                {
-                    // Specify options for the client
-                });
+                var client = new BinanceClient(new BinanceClientOptions());
                 var callResult = client.FuturesUsdt.Market.GetPricesAsync();
-
-                //var btc = callResult.Result.Data.Where(p => Regex.Match(p.Symbol, @"(.{3})\s*$").ToString() == "BTC");
 
                 foreach (BinancePrice bp in callResult.Result.Data)
                 {

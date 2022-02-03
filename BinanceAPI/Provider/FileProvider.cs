@@ -26,7 +26,7 @@ namespace BinanceAPI.Provider
                 }
                 return data;
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 return null;
             }

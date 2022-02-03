@@ -77,7 +77,7 @@ namespace BinanceAPI
             }
             catch(Exception ex)
             {
-                MessageBox.Show("Ошибка ввода данных");
+                MessageBox.Show("Ошибка ввода данных "+ ex);
             }
             
         }

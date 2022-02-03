@@ -288,7 +288,7 @@ namespace BinanceAPI
                                 dataForTable[i] = new DataBinanceView
                                 {
                                     symbol = updateSymbol.Symbol,
-                                    percent = Math.Round(((updateSymbol.Data.High - updateSymbol.Data.Open) / updateSymbol.Data.Open) * 100, 3),
+                                    percent = Math.Round(((updateSymbol.Data.High - updateSymbol.Data.Low) / updateSymbol.Data.Low) * 100, 3),
                                     link = dataForTable[i].link,
                                     StartPrice = updateSymbol.Data.Open
                                 };
