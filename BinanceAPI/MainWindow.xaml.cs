@@ -107,7 +107,7 @@ namespace BinanceAPI
             {
 
                 TimerCallback tm = new TimerCallback(checkAlert);
-                timerAlert = new Timer(tm, 0, 5000, 5000);
+                timerAlert = new Timer(tm, 0, 3000, 3000);
 
                 list.Items.Add("Получение начальных значений");
                 updateBaseDataBinance();
@@ -200,6 +200,9 @@ namespace BinanceAPI
                 }
                 updateBaseDataBinance();
                 List<string> ListName = BinanceProvider.CurName();
+
+                //File.WriteAllLines("pairs1.txt",ListName);
+
                 foreach (string s in ListName)
                 {
                     cbPair.Items.Add(s);
@@ -275,7 +278,7 @@ namespace BinanceAPI
                     symbols.Add(symbol.symbol);
                 }
 
-                await socketClient.FuturesUsdt.SubscribeToKlineUpdatesAsync(symbols, Binance.Net.Enums.KlineInterval.FifteenMinutes, zbs => {
+                await socketClient.Spot.SubscribeToKlineUpdatesAsync(symbols, Binance.Net.Enums.KlineInterval.FifteenMinutes, zbs => {
                     for (int i = 0; i < dataForTable.Count; i++)
                     {
                         if (!(dataForTable[i].symbol == zbs.Data.Symbol))
@@ -288,7 +291,7 @@ namespace BinanceAPI
                                 dataForTable[i] = new DataBinanceView
                                 {
                                     symbol = updateSymbol.Symbol,
-                                    percent = Math.Round(((updateSymbol.Data.High - updateSymbol.Data.Open) / updateSymbol.Data.Open) * 100, 3),
+                                    percent = Math.Round((-1)*((updateSymbol.Data.Open - updateSymbol.Data.Close) / updateSymbol.Data.Close) * 100,3),
                                     link = dataForTable[i].link,
                                     StartPrice = updateSymbol.Data.Open
                                 };

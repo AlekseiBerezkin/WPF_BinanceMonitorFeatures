@@ -22,7 +22,7 @@ namespace BinanceAPI.Provider
 
 
 
-        static string baseLinkBinance = "https://www.binance.com/ru/futures/";
+        static string baseLinkBinance = "https://www.binance.com/ru/trade/";
 
         public static List<BinancePrice> getDataBinance()
         {
@@ -43,7 +43,7 @@ namespace BinanceAPI.Provider
             {
 
                 var client = new BinanceClient(new BinanceClientOptions());
-                var callResult = client.FuturesUsdt.Market.GetPricesAsync();
+                var callResult = client.Spot.Market.GetPricesAsync();
 
                 foreach (BinancePrice bp in callResult.Result.Data)
                 {
@@ -62,7 +62,7 @@ namespace BinanceAPI.Provider
            
             string currency = name.Replace("0","");
             currency = currency.Replace("1", "");
-            return baseLinkBinance + currency + "_perpetual";
+            return baseLinkBinance + currency.Replace("USDT","_USDT");
         }
 
         public static List<string> CurName()
